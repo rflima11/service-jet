@@ -1,0 +1,19 @@
+jet:
+  scheme: https
+  produto-host: adm-produto-sbx-neo1.plataformaneo.com.br
+  cliente-host: adm-cliente-sbx-neo1.plataformaneo.com.br
+  pedido-host: adm-pedido-sbx-neo1.plataformaneo.com.br
+  api-path: api/v1
+  integration-key: ${JET_INTEGRATIONKEY:10011446020}
+  produto:
+    username: ${JET_PRODUTO_USERNAME:telasramacrisna_admproduto}
+    password: ${JET_PRODUTO_PASSWORD:admprodutotela2@229234F50A}
+    store-id: ${JET_STOREID:1001144}
+  pedido:
+    username: ${JET_PEDIDO_USERNAME:telasramacrisna_admpedido}
+    password: ${JET_PEDIDO_PASSWORD:admpedidotela2@22DB5F08DE}
+    store-id: ${JET_STOREID:1001144}
+  cliente:
+    username: ${JET_CLIENTE_USERNAME:telasramacrisna_admb2b}
+    password: ${JET_CLIENTE_PASSWORD:admb2btela2@227C51240D}
+    store-id: ${JET_STOREID:1001144}
