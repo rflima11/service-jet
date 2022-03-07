@@ -23,8 +23,5 @@ public class ServiceJetApplication {
 		return new ObjectMapper();
 	}
 
-	@Bean
-	CommandLineRunner lookUp(JetProduto jetProduto, JetProperties jetProperties) {
-		return args -> System.out.println(jetProduto.getProdutos(jetProperties.getProduto())) ;
-	}
+
 }

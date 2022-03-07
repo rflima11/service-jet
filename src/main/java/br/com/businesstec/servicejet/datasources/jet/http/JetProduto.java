@@ -4,6 +4,7 @@ import br.com.businesstec.servicejet.config.JetProperties;
 import br.com.businesstec.servicejet.datasources.jet.data.Credentials;
 import br.com.businesstec.servicejet.datasources.jet.data.Token;
 import br.com.businesstec.servicejet.datasources.jet.data.enums.ApiPathEnum;
+import br.com.businesstec.servicejet.datasources.jet.data.enums.HostEnum;
 import br.com.businesstec.servicejet.datasources.jet.exceptions.OkHttpException;
 import br.com.businesstec.servicejet.utils.ExceptionConstants;
 import org.apache.logging.log4j.LogManager;
@@ -20,28 +21,20 @@ public class JetProduto {
     private static final Logger logger = LogManager.getLogger(JetProduto.class);
 
     private final JetProperties jetProperties;
+    private final HttpRequestFactory httpRequestFactory;
     private final JetAuth jetAuth;
     private final HttpClient httpClient;
 
-    public JetProduto(JetProperties jetProperties, JetAuth jetAuth) {
+    public JetProduto(JetProperties jetProperties, HttpRequestFactory httpRequestFactory, JetAuth jetAuth) {
         this.jetProperties = jetProperties;
+        this.httpRequestFactory = httpRequestFactory;
         this.jetAuth = jetAuth;
         this.httpClient = HttpClient.newHttpClient();
     }
 
     public Token getProdutos(Credentials credentials) {
         try {
-            var request = HttpRequest.newBuilder()
-                    .uri(UriComponentsBuilder.newInstance().scheme(jetProperties.getScheme())
-                            .host(jetProperties.getProdutoHost())
-                            .path(jetProperties.getApiPath())
-                            .path(ApiPathEnum.GET_QUEUE_PRODUTOS.getValue())
-                            .queryParam("integrationKey", jetProperties.getIntegrationKeyBase64())
-                            .build()
-                            .toUri()
-                            )
-                    .header("Content-Type", "application/json; charset=utf-8")
-                    .header("Authorization", "Bearer ".concat(jetAuth.getAccessTokenProduto(jetProperties.getProduto()).getAccessToken()))
+            var request = httpRequestFactory.getBuilder(HostEnum.PRODUTO_HOST, ApiPathEnum.GET_QUEUE_PRODUTOS)
                     .GET()
                     .build();
 

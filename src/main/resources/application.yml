@@ -1,3 +1,9 @@
+spring:
+  datasource:
+    username: rod
+    url: jdbc:postgresql://localhost:5432/businesstec
+    password: '12345'
+
 jet:
   scheme: https
   produto-host: adm-produto-sbx-neo1.plataformaneo.com.br
@@ -17,3 +23,6 @@ jet:
     username: ${JET_CLIENTE_USERNAME:telasramacrisna_admb2b}
     password: ${JET_CLIENTE_PASSWORD:admb2btela2@227C51240D}
     store-id: ${JET_STOREID:1001144}
+
+server:
+  port: 8085
