@@ -16,6 +16,7 @@ jet:
     password: ${JET_PRODUTO_PASSWORD:admprodutotela2@229234F50A}
     store-id: ${JET_STOREID:1001144}
   pedido:
+    host: ${jet.scheme}://adm-pedido-sbx-neo1.plataformaneo.com.br/${jet.api-path}/
     username: ${JET_PEDIDO_USERNAME:telasramacrisna_admpedido}
     password: ${JET_PEDIDO_PASSWORD:admpedidotela2@22DB5F08DE}
     store-id: ${JET_STOREID:1001144}
@@ -26,3 +27,15 @@ jet:
 
 server:
   port: 8085
+
+logging:
+  level:
+    br.com.businesstec.servicejet.client:
+      cliente: DEBUG
+      authClient: DEBUG
+
+feign:
+  client:
+    config:
+      foo-client:
+        loggerLevel: full
