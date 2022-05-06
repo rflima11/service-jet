@@ -1,8 +1,8 @@
 package br.com.businesstec.servicejet.service;
 
+import br.com.businesstec.model.entities.Variacao;
+import br.com.businesstec.model.entities.VariacaoItem;
 import br.com.businesstec.servicejet.client.dto.VariacaoDTO;
-import br.com.businesstec.servicejet.model.Variacao;
-import br.com.businesstec.servicejet.model.VariacaoItem;
 
 import java.util.List;
 

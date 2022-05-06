@@ -1,8 +1,8 @@
 package br.com.businesstec.servicejet.service.impl;
 
-import br.com.businesstec.servicejet.model.ControleExecucaoFluxoEntidade;
-import br.com.businesstec.servicejet.model.ControleExecucaoFluxoEntidadeEntrega;
-import br.com.businesstec.servicejet.repository.ControleExecucaoFluxoEntidadeEntregaRepository;
+import br.com.businesstec.model.entities.ControleExecucaoFluxoEntidade;
+import br.com.businesstec.model.entities.ControleExecucaoFluxoEntidadeEntrega;
+import br.com.businesstec.model.repository.ControleExecucaoFluxoEntidadeEntregaRepository;
 import br.com.businesstec.servicejet.service.ControleExecucaoFluxoEntidadeEntregaService;
 import br.com.businesstec.servicejet.service.ControleExecucaoFluxoEntidadeService;
 import org.springframework.stereotype.Service;
@@ -23,4 +23,6 @@ public class ControleExecucaoFluxoEntidadeEntregaServiceImpl implements Controle
         controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
         return repository.save(new ControleExecucaoFluxoEntidadeEntrega(controleExecucaoFluxoEntidade.getId(), false));
     }
+
+
 }

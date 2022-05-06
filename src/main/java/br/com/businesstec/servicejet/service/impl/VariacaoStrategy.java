@@ -1,8 +1,8 @@
 package br.com.businesstec.servicejet.service.impl;
 
+import br.com.businesstec.model.entities.ControleExecucaoFluxoEntidade;
+import br.com.businesstec.model.repository.VariacaoItemRepository;
 import br.com.businesstec.servicejet.enums.EnumIntegracaoStrategy;
-import br.com.businesstec.servicejet.model.ControleExecucaoFluxoEntidade;
-import br.com.businesstec.servicejet.repository.VariacaoItemRepository;
 import br.com.businesstec.servicejet.service.ControleExecucaoFluxoEntidadeEntregaService;
 import br.com.businesstec.servicejet.service.IntegracaoStrategy;
 import br.com.businesstec.servicejet.service.VariacaoService;

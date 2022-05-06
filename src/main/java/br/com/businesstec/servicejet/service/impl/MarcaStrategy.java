@@ -1,7 +1,7 @@
 package br.com.businesstec.servicejet.service.impl;
 
+import br.com.businesstec.model.entities.ControleExecucaoFluxoEntidade;
 import br.com.businesstec.servicejet.enums.EnumIntegracaoStrategy;
-import br.com.businesstec.servicejet.model.ControleExecucaoFluxoEntidade;
 import br.com.businesstec.servicejet.service.ControleExecucaoFluxoEntidadeEntregaService;
 import br.com.businesstec.servicejet.service.IntegracaoStrategy;
 import br.com.businesstec.servicejet.service.MarcaService;
@@ -24,13 +24,16 @@ public class MarcaStrategy implements IntegracaoStrategy {
 
     @Override
     public void executar(ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade) {
-        var marcas = marcaService.recuperarMarcasNaoIntegradas();
+        var marca = marcaService.recuperarMarcaNaoIntegradoByIdEntidade(controleExecucaoFluxoEntidade.getIdEntidade());
 
-        logger.info("=============================================================================");
-        logger.info("MARCAS ENCONTRADAS: " + marcas.size());
-        logger.info("=============================================================================");
 
-        marcaService.integrarMarcas(marcas, controleExecucaoFluxoEntidade);
+//        var marcas = marcaService.recuperarMarcasNaoIntegradas();
+//
+//        logger.info("=============================================================================");
+//        logger.info("MARCAS ENCONTRADAS: " + marcas.size());
+//        logger.info("=============================================================================");
+
+        marcaService.integrarMarcas(marca, controleExecucaoFluxoEntidade);
     }
 
     @Override

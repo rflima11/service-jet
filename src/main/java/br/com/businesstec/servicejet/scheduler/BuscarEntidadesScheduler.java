@@ -1,9 +1,8 @@
 package br.com.businesstec.servicejet.scheduler;
 
 import br.com.businesstec.servicejet.enums.EnumIntegracaoStrategy;
-import br.com.businesstec.servicejet.factory.StrategyFactory;
+import br.com.businesstec.servicejet.factory.IntegracaoStrategyFactory;
 import br.com.businesstec.servicejet.http.JetMarca;
-import br.com.businesstec.servicejet.mapper.MarcaMapper;
 import br.com.businesstec.servicejet.service.ControleExecucaoFluxoEntidadeService;
 import br.com.businesstec.servicejet.service.MarcaService;
 import org.slf4j.Logger;
@@ -20,9 +19,9 @@ public class BuscarEntidadesScheduler {
 
     private final ControleExecucaoFluxoEntidadeService controleExecucaoFluxoEntidadeService;
     private final MarcaService marcaService;
-    private final StrategyFactory strategyFactory;
+    private final IntegracaoStrategyFactory strategyFactory;
 
-    public BuscarEntidadesScheduler(ControleExecucaoFluxoEntidadeService controleExecucaoFluxoEntidadeService, MarcaService marcaService, JetMarca jetMarca, StrategyFactory strategyFactory) {
+    public BuscarEntidadesScheduler(ControleExecucaoFluxoEntidadeService controleExecucaoFluxoEntidadeService, MarcaService marcaService, JetMarca jetMarca, IntegracaoStrategyFactory strategyFactory) {
         this.controleExecucaoFluxoEntidadeService = controleExecucaoFluxoEntidadeService;
         this.marcaService = marcaService;
         this.strategyFactory = strategyFactory;
@@ -32,7 +31,13 @@ public class BuscarEntidadesScheduler {
     public void integrarEntidades() {
         var controles = controleExecucaoFluxoEntidadeService.recuperarControlesFluxos();
 
+        if (controles.isEmpty()) {
+            logger.info("NÃO FORAM ENCONTRADOS NOVOS REGISTROS A INTEGRAR");
+        } else {
+            logger.info("FORAM ENCONTRADOS " + controles.size() + " REGISTROS NOVOS A SEREM INTEGRADOS");
+        }
         controles.stream().forEach(c -> {
+
             var strategy = strategyFactory
                     .findStrategy(EnumIntegracaoStrategy.getStrategyByIdEntidade(
                             controleExecucaoFluxoEntidadeService.recuperarTipoEntidade(c)));

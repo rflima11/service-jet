@@ -1,7 +1,7 @@
 package br.com.businesstec.servicejet.service;
 
-import br.com.businesstec.servicejet.model.ControleExecucaoFluxoEntidade;
-import br.com.businesstec.servicejet.model.ControleExecucaoFluxoEntidadeEntrega;
+import br.com.businesstec.model.entities.ControleExecucaoFluxoEntidade;
+import br.com.businesstec.model.entities.ControleExecucaoFluxoEntidadeEntrega;
 
 public interface ControleExecucaoFluxoEntidadeEntregaService {
 

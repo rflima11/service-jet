@@ -1,26 +1,17 @@
 package br.com.businesstec.servicejet;
 
-import br.com.businesstec.servicejet.client.AuthClienteJet;
-import br.com.businesstec.servicejet.client.ClienteJet;
-import br.com.businesstec.servicejet.config.JetProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
+import org.springframework.retry.annotation.EnableRetry;
 
 @EnableFeignClients
 @SpringBootApplication
+@EnableRetry
 public class ServiceJetApplication {
-
-	@Autowired
-	private JetProperties jetProperties;
-	@Autowired
-	private AuthClienteJet authClienteJet;
-	@Autowired
-	private ClienteJet clienteJet;
 
 	public static void main(String[] args) {
 		SpringApplication.run(ServiceJetApplication.class, args);
@@ -28,17 +19,11 @@ public class ServiceJetApplication {
 
 	@Bean
 	ObjectMapper objectMapper() {
-		return new ObjectMapper();
+		var objectMapper = new ObjectMapper();
+		objectMapper.registerModule(new JavaTimeModule());
+		return objectMapper;
 	}
 
-	@Bean
-	CommandLineRunner teste(JetProperties jetProperties) {
-		return args -> {
-			var r = authClienteJet.auth(jetProperties.getPedido()).getBody().getAccessToken();
-			var b = clienteJet.getClientes("Bearer ".concat(r));
-			System.out.println(b.getBody());
-		};
-	}
 
 
 }

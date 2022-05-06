@@ -13,6 +13,9 @@ public class MarcaDTO extends EntityDTO {
     @JsonProperty("active")
     private boolean active;
 
+    @JsonProperty("externalId")
+    private String externalId;
+
     public String getName() {
         return name;
     }
@@ -35,5 +38,13 @@ public class MarcaDTO extends EntityDTO {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public String getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(String externalId) {
+        this.externalId = externalId;
     }
 }

@@ -1,7 +1,7 @@
 package br.com.businesstec.servicejet.service.impl;
 
+import br.com.businesstec.model.entities.ControleExecucaoFluxoEntidade;
 import br.com.businesstec.servicejet.enums.EnumIntegracaoStrategy;
-import br.com.businesstec.servicejet.model.ControleExecucaoFluxoEntidade;
 import br.com.businesstec.servicejet.service.IntegracaoStrategy;
 import org.springframework.stereotype.Service;
 

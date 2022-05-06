@@ -12,6 +12,7 @@ jet:
   api-path: api/v1
   integration-key: ${JET_INTEGRATIONKEY:10011446020}
   produto:
+    host: ${jet.scheme}://adm-produto-sbx-neo1.plataformaneo.com.br/${jet.api-path}/
     username: ${JET_PRODUTO_USERNAME:telasramacrisna_admproduto}
     password: ${JET_PRODUTO_PASSWORD:admprodutotela2@229234F50A}
     store-id: ${JET_STOREID:1001144}
@@ -33,9 +34,9 @@ logging:
     br.com.businesstec.servicejet.client:
       cliente: DEBUG
       authClient: DEBUG
-
+      produto: DEBUG
 feign:
   client:
     config:
-      foo-client:
+      produto:
         loggerLevel: full

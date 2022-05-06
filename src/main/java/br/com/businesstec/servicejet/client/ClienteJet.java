@@ -1,5 +1,6 @@
 package br.com.businesstec.servicejet.client;
 
+import br.com.businesstec.servicejet.client.config.FeignConfig;
 import br.com.businesstec.servicejet.client.dto.ClienteDTO;
 import br.com.businesstec.servicejet.client.dto.Queue;
 import org.springframework.cloud.openfeign.FeignClient;

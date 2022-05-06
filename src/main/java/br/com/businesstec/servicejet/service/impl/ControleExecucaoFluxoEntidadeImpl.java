@@ -1,7 +1,7 @@
 package br.com.businesstec.servicejet.service.impl;
 
-import br.com.businesstec.servicejet.model.ControleExecucaoFluxoEntidade;
-import br.com.businesstec.servicejet.repository.ControleExecucaoFluxoEntidadeRepository;
+import br.com.businesstec.model.entities.ControleExecucaoFluxoEntidade;
+import br.com.businesstec.model.repository.ControleExecucaoFluxoEntidadeRepository;
 import br.com.businesstec.servicejet.service.ControleExecucaoFluxoEntidadeService;
 import org.springframework.stereotype.Service;
 
@@ -30,5 +30,15 @@ public class ControleExecucaoFluxoEntidadeImpl implements ControleExecucaoFluxoE
     @Override
     public Long recuperarTipoEntidade(ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade) {
         return controleExecucaoFluxoEntidadeRepository.findTipoEntidadePorCtrlFluxo(controleExecucaoFluxoEntidade.getId());
+    }
+
+    @Override
+    public ControleExecucaoFluxoEntidade registrar(Long idControleExecucaoFluxo, Long idEntidade) {
+        return controleExecucaoFluxoEntidadeRepository.save(new ControleExecucaoFluxoEntidade(idControleExecucaoFluxo, idEntidade));
+    }
+
+    @Override
+    public ControleExecucaoFluxoEntidade encontrarFluxoExecucaoEntidadeByIdEntidade(Long idEntidade) {
+        return controleExecucaoFluxoEntidadeRepository.findByIdEntidade(idEntidade);
     }
 }

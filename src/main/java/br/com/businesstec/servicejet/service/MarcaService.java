@@ -1,7 +1,8 @@
 package br.com.businesstec.servicejet.service;
 
-import br.com.businesstec.servicejet.model.ControleExecucaoFluxoEntidade;
-import br.com.businesstec.servicejet.model.Marca;
+import br.com.businesstec.model.entities.ControleExecucaoFluxoEntidade;
+import br.com.businesstec.model.entities.Marca;
+import br.com.businesstec.model.entities.Produto;
 
 import java.util.List;
 
@@ -13,6 +14,9 @@ public interface MarcaService {
 
     Marca salvarMarca(Marca marca);
 
-    void integrarMarcas(List<Marca> marcas, ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade);
+    void integrarMarcas(Marca marca, ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade);
+
+
+    Marca recuperarMarcaNaoIntegradoByIdEntidade(Long idEntidade);
 
 }

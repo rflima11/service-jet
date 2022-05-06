@@ -1,6 +1,7 @@
 package br.com.businesstec.servicejet.client.dto;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class ProdutoDTO {
 
@@ -8,12 +9,15 @@ public class ProdutoDTO {
     private String name;
     private String promotionStore;
     private Boolean flagExhausted;
+    private BigDecimal pricePromotion;
+    private BrandDTO brand;
     private String imageHome;
-    private String stock;
+    private Long stock;
     private BigDecimal price;
     private String externalId;
-    private String active;
-    private CategoriaDTO categories;
+    private Boolean active;
+    private List<CategoriaDTO> categories;
+    private PesoDTO cubing;
 
     public String getCode() {
         return code;
@@ -21,6 +25,22 @@ public class ProdutoDTO {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public BrandDTO getBrand() {
+        return brand;
+    }
+
+    public void setBrand(BrandDTO brand) {
+        this.brand = brand;
+    }
+
+    public BigDecimal getPricePromotion() {
+        return pricePromotion;
+    }
+
+    public void setPricePromotion(BigDecimal pricePromotion) {
+        this.pricePromotion = pricePromotion;
     }
 
     public String getName() {
@@ -55,11 +75,11 @@ public class ProdutoDTO {
         this.imageHome = imageHome;
     }
 
-    public String getStock() {
+    public Long getStock() {
         return stock;
     }
 
-    public void setStock(String stock) {
+    public void setStock(Long stock) {
         this.stock = stock;
     }
 
@@ -79,20 +99,32 @@ public class ProdutoDTO {
         this.externalId = externalId;
     }
 
-    public String getActive() {
+    public Boolean isActive() {
         return active;
     }
 
-    public void setActive(String active) {
+    public void setActive(Boolean active) {
         this.active = active;
     }
 
-    public CategoriaDTO getCategories() {
+    public Boolean getActive() {
+        return active;
+    }
+
+    public List<CategoriaDTO> getCategories() {
         return categories;
     }
 
-    public void setCategories(CategoriaDTO categories) {
+    public void setCategories(List<CategoriaDTO> categories) {
         this.categories = categories;
+    }
+
+    public PesoDTO getCubing() {
+        return cubing;
+    }
+
+    public void setCubing(PesoDTO cubing) {
+        this.cubing = cubing;
     }
 }
 

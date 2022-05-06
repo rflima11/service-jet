@@ -6,7 +6,10 @@ public enum EnumIntegracaoStrategy {
 
     VARIACAO_STRATEGY(4L),
     CATEGORIA_STRATEGY(3L),
-    MARCA_STRATEGY(2L);
+    MARCA_STRATEGY(2L),
+    PRODUTO_STRATEGY(1L),
+    PEDIDO_STRATEGY(5L),
+    CLIENTES_STRATEGY(9L);
 
     private Long value;
 

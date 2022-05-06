@@ -1,11 +1,11 @@
 package br.com.businesstec.servicejet.service.impl;
 
+import br.com.businesstec.model.entities.Variacao;
+import br.com.businesstec.model.entities.VariacaoItem;
+import br.com.businesstec.model.repository.VariacaoRepository;
 import br.com.businesstec.servicejet.client.dto.VariacaoDTO;
 import br.com.businesstec.servicejet.client.dto.VariationsDTO;
 import br.com.businesstec.servicejet.http.JetVariacao;
-import br.com.businesstec.servicejet.model.Variacao;
-import br.com.businesstec.servicejet.model.VariacaoItem;
-import br.com.businesstec.servicejet.repository.VariacaoRepository;
 import br.com.businesstec.servicejet.service.VariacaoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

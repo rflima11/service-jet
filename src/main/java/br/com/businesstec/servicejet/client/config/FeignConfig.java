@@ -1,9 +1,10 @@
-package br.com.businesstec.servicejet.client;
+package br.com.businesstec.servicejet.client.config;
 
+import br.com.businesstec.servicejet.client.AuthClienteJet;
 import br.com.businesstec.servicejet.config.JetProperties;
-import br.com.businesstec.servicejet.http.JetAuth;
 import feign.Logger;
 import feign.RequestInterceptor;
+import feign.codec.ErrorDecoder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +17,6 @@ public class FeignConfig {
 
     public FeignConfig(JetProperties jetProperties) {
         this.jetProperties = jetProperties;
-
     }
 
     @Bean
@@ -25,11 +25,13 @@ public class FeignConfig {
     }
 
 
+
     @Bean
     public RequestInterceptor requestInterceptor() {
         return requestTemplate -> {
             requestTemplate.header("Content-Type", "application/json");
             requestTemplate.query("integrationKey", jetProperties.getIntegrationKeyBase64());
+            requestTemplate.query("integrateCategory", "false");
         };
 
     }
