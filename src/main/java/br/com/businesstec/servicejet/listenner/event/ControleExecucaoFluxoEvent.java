@@ -6,14 +6,14 @@ import org.springframework.context.ApplicationEvent;
 
 public class ControleExecucaoFluxoEvent extends ApplicationEvent {
 
-    private ControleExecucaoFluxoDTO controleExecucaoFluxo;
+    private ControleExecucaoFluxo controleExecucaoFluxo;
 
-    public ControleExecucaoFluxoEvent(Object source, ControleExecucaoFluxoDTO controleExecucaoFluxo) {
+    public ControleExecucaoFluxoEvent(Object source, ControleExecucaoFluxo controleExecucaoFluxo) {
         super(controleExecucaoFluxo);
         this.controleExecucaoFluxo = controleExecucaoFluxo;
     }
 
-    public ControleExecucaoFluxoDTO getControleExecucaoFluxo() {
+    public ControleExecucaoFluxo getControleExecucaoFluxo() {
         return controleExecucaoFluxo;
     }
 }

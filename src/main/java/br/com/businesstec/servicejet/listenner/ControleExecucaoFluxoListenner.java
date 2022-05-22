@@ -29,6 +29,6 @@ public class ControleExecucaoFluxoListenner implements ApplicationListener<Contr
         var enumIntegracaoStrategy = EnumEntidadeStrategy
                         .getStrategyByIdEntidade(idEntidade);
         var strategy = strategyFactory.findStrategy(enumIntegracaoStrategy);
-        strategy.executar();
+        strategy.executar(controleExecucaoFluxo);
     }
 }

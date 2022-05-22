@@ -5,9 +5,11 @@ import br.com.businesstec.model.entities.Marca;
 import br.com.businesstec.model.repository.MarcaRepository;
 import br.com.businesstec.servicejet.client.MarcaClient;
 import br.com.businesstec.servicejet.client.dto.MarcaDTO;
+import br.com.businesstec.servicejet.client.dto.Queue;
 import br.com.businesstec.servicejet.config.JetProperties;
 import br.com.businesstec.servicejet.mapper.MarcaMapper;
 import br.com.businesstec.servicejet.service.ControleExecucaoFluxoEntidadeService;
+import br.com.businesstec.servicejet.service.MarcaEcommerceService;
 import br.com.businesstec.servicejet.service.MarcaService;
 import br.com.businesstec.servicejet.service.TokenService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -21,7 +23,10 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class MarcaServiceImpl implements MarcaService {
@@ -35,14 +40,16 @@ public class MarcaServiceImpl implements MarcaService {
     private final MarcaMapper marcaMapper;
     private final JetProperties jetProperties;
     private final TokenService tokenService;
+    private final MarcaEcommerceService marcaEcommerceService;
     private final MarcaClient marcaClient;
     private final ObjectMapper objectMapper;
 
-    public MarcaServiceImpl(MarcaRepository marcaRepository, ControleExecucaoFluxoEntidadeService controleExecucaoFluxoEntidadeService, JetProperties jetProperties, TokenService tokenService, MarcaClient marcaClient, ObjectMapper objectMapper) {
+    public MarcaServiceImpl(MarcaRepository marcaRepository, ControleExecucaoFluxoEntidadeService controleExecucaoFluxoEntidadeService, JetProperties jetProperties, TokenService tokenService, MarcaEcommerceService marcaEcommerceService, MarcaClient marcaClient, ObjectMapper objectMapper) {
         this.marcaRepository = marcaRepository;
         this.controleExecucaoFluxoEntidadeService = controleExecucaoFluxoEntidadeService;
         this.jetProperties = jetProperties;
         this.tokenService = tokenService;
+        this.marcaEcommerceService = marcaEcommerceService;
         this.marcaClient = marcaClient;
         this.objectMapper = objectMapper;
         marcaMapper = MarcaMapper.INSTANCE;
@@ -66,49 +73,68 @@ public class MarcaServiceImpl implements MarcaService {
     @Override
     @Retryable(FeignException.class)
     public void integrarMarcas(Marca marca, ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade) {
-        var marcaDto = marcaMapper.map(marca);
-        var accessToken = tokenService.getAccessToken(jetProperties.getProduto());
-        marcaClient.inserirMarca(accessToken, marcaDto);
+        try {
+            logger.info("INICIANDO INTEGRAÇÃO MARCA " + marca.getDescricao());
+            var marcaDto = marcaMapper.map(marca);
+            var marcaEcommerce = marcaEcommerceService.encontrarPeloIdMarca(marca.getId());
+            marcaDto.setActive(marcaEcommerce.getAtivo());
+            var accessToken = tokenService.getAccessToken(jetProperties.getProduto());
+            var filaMarca = marcaClient.getMarcas(accessToken);
 
-        controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
 
+            var marcaSalva = marcaClient.getIdentificadorMarca(accessToken, Collections.singletonList(Long.parseLong(marcaDto.getExternalId()))).getBody();
+            logger.info("DETECTADO " + marcaSalva.size() + " JÁ CADASTRADA");
 
-//        marcas.stream().forEach(marca -> {
-//            try {
-//                var idMarcaJet = jetMarca.integrarMarca(marcaMapper.map(marca));
-//                if (Objects.isNull(idMarcaJet)) {
-////                    throw new RuntimeException("Não foi possível integrar marca, id: " + marca.getIdMarca());
-//                }
-////                marca.setIdMarcaJet(Long.parseLong(idMarcaJet));
-//                var marcaSalva = salvarMarca(marca);
-//                logger.info("=============================================================================");
-////                logger.info("MARCA INTEGRADA COM SUCESSO, ID JET:  " + marcaSalva.getIdMarcaJet());
-//                logger.info("=============================================================================");
-//                Thread.sleep(250);
-//                controleExecucaoFluxoEntidadeEntregaService.registrarExecucao(controleExecucaoFluxoEntidade);
-//
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//        });
+            if (marcaSalva.isEmpty()) {
+                marcaClient.inserirMarca(accessToken, marcaDto);
+            } else {
+                var marcaS = marcaSalva.get(0);
+                logger.info("INICIANDO INTEGRAÇÃO MARCA " +  marca.getDescricao());
+                marcaDto.setIdBrand(marcaS.getIdBrand());
+                Thread.sleep(300);
+                marcaClient.atualizarMarca(accessToken, marcaDto);
+                logger.info("ATUALIZAÇÃO MARCA " +  marca.getDescricao() + " FEITA COM SUCESSO");
+            }
+            controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
+            logger.info(String.format("MARCA %s INTEGRADA COM SUCESSO ", marcaDto.getName()));
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Optional<Long> verificaSeMarcaJaEstaCadastrada(List<Queue<MarcaDTO>> filaMarca, MarcaDTO marcaDTO) {
+        var idBrands = filaMarca.stream().map(f -> {
+            var marcaDtoFila = f.getEntity();
+            return marcaDtoFila.getIdBrand();
+        }).collect(Collectors.toList());
+
+        return idBrands.stream().filter(i -> marcaDTO.getIdBrand() == i).findFirst();
     }
 
     @Recover
     private void recover(FeignException e) throws JsonProcessingException {
-        if (e.contentUTF8().contains(MENSAGEM_ERRO_MARCA_JA_CADASTRADA)) {
-            var body = new String(e.request().body(), StandardCharsets.US_ASCII);
-            var marcaDto = objectMapper.readValue(body, MarcaDTO.class);
-            var marca = marcaRepository.findByIdentificadorOrigem(marcaDto.getExternalId()).orElseThrow(() -> new RuntimeException("Marca não encontrada com o ID " + marcaDto.getExternalId()));
-            var controleExecucaoFluxoEntidade = controleExecucaoFluxoEntidadeService.encontrarFluxoExecucaoEntidadeByIdEntidade(marca.getIdEntidade());
-            var accessToken = tokenService.getAccessToken(jetProperties.getProduto());
-            marcaClient.atualizarMarca(accessToken, objectMapper.readValue(body, MarcaDTO.class));
-            controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
+
+        try {
+            if (e.contentUTF8().contains(MENSAGEM_ERRO_MARCA_JA_CADASTRADA)) {
+                var body = new String(e.request().body(), StandardCharsets.US_ASCII);
+                var marcaDto = objectMapper.readValue(body, MarcaDTO.class);
+                var marca = marcaRepository.findByIdentificadorOrigem(marcaDto.getExternalId()).orElseThrow(() -> new RuntimeException("Marca não encontrada com o ID " + marcaDto.getExternalId()));
+                var controleExecucaoFluxoEntidade = controleExecucaoFluxoEntidadeService.encontrarFluxoExecucaoEntidadeByIdEntidade(marca.getIdEntidade());
+                var accessToken = tokenService.getAccessToken(jetProperties.getProduto());
+                Thread.sleep(300);
+                marcaClient.atualizarMarca(accessToken, objectMapper.readValue(body, MarcaDTO.class));
+                controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
+            }
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
         }
+
     }
 
     @Override
     public Marca recuperarMarcaNaoIntegradoByIdEntidade(Long idEntidade) {
-        return marcaRepository.findByIdEntidade(idEntidade);
+        return marcaRepository.findByIdEntidade(idEntidade).orElseThrow(() -> new RuntimeException("Não encontrada marca"));
     }
 
 

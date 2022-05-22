@@ -33,8 +33,9 @@ public class ProdutoStrategyImpl implements IntegracaoStrategy {
     private final TokenService tokenService;
     private final ObjectMapper objectMapper;
     private final ControleExecucaoFluxoEntidadeService controleExecucaoFluxoEntidadeService;
+    private final CategoriaProdutoService categoriaProdutoService;
 
-    public ProdutoStrategyImpl(ProdutoService produtoService, ProdutoEcommerceService produtoEcommerceService, ProdutoJet produtoJet, JetProperties jetProperties, TokenService tokenService, ObjectMapper objectMapper, ControleExecucaoFluxoEntidadeService controleExecucaoFluxoEntidadeService) {
+    public ProdutoStrategyImpl(ProdutoService produtoService, ProdutoEcommerceService produtoEcommerceService, ProdutoJet produtoJet, JetProperties jetProperties, TokenService tokenService, ObjectMapper objectMapper, ControleExecucaoFluxoEntidadeService controleExecucaoFluxoEntidadeService, CategoriaProdutoService categoriaProdutoService) {
         this.produtoService = produtoService;
         this.produtoEcommerceService = produtoEcommerceService;
         this.produtoJet = produtoJet;
@@ -42,27 +43,25 @@ public class ProdutoStrategyImpl implements IntegracaoStrategy {
         this.tokenService = tokenService;
         this.objectMapper = objectMapper;
         this.controleExecucaoFluxoEntidadeService = controleExecucaoFluxoEntidadeService;
+        this.categoriaProdutoService = categoriaProdutoService;
         this.produtoMapper = ProdutoMapper.INSTANCE;
     }
 
     @Override
     @Retryable(FeignException.class)
     public void executar(ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade) {
-
-            var produtoSalvo = produtoService.recuperarProdutoNaoIntegradoByIdEntidade(controleExecucaoFluxoEntidade.getIdEntidade());
-            var produtoDto = produtoMapper.map(produtoSalvo);
-            var produtoEcommerce = produtoEcommerceService.findByIdProduto(produtoSalvo.getId());
-            produtoDto.setPromotionStore(produtoEcommerce.getPromocaoLoja());
-            produtoDto.setCategories(mockCategoria());
-            produtoDto.setBrand(new BrandDTO());
-            produtoDto.setFlagExhausted(true);
-            produtoDto.setActive(produtoEcommerce.isAtivo());
-            var accessToken = tokenService.getAccessToken(jetProperties.getProduto());
-            controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
-            produtoJet.adicionarNovoProdutoJet(accessToken, produtoDto);
-            System.out.println(produtoDto);
-
-
+        var produtoSalvo = produtoService.recuperarProdutoNaoIntegradoByIdEntidade(controleExecucaoFluxoEntidade.getIdEntidade());
+        var produtoDto = produtoMapper.map(produtoSalvo);
+        var produtoEcommerce = produtoEcommerceService.findByIdProduto(produtoSalvo.getId());
+        produtoDto.setPromotionStore(produtoEcommerce.getPromocaoLoja());
+        produtoDto.setCategories(categoriaProdutoService.recuperarCategorias(Long.valueOf(produtoDto.getExternalId())));
+        produtoDto.setBrand(new BrandDTO());
+        produtoDto.setFlagExhausted(true);
+        produtoDto.setActive(produtoEcommerce.isAtivo());
+        var accessToken = tokenService.getAccessToken(jetProperties.getProduto());
+        produtoJet.adicionarNovoProdutoJet(accessToken, produtoDto);
+        controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
+        System.out.println(produtoDto);
 
     }
 
@@ -71,18 +70,24 @@ public class ProdutoStrategyImpl implements IntegracaoStrategy {
         if (e.contentUTF8().contains(MENSAGEM_ERRO_PRODUTO_JA_CADASTRADO)) {
             var body = new String(e.request().body(), StandardCharsets.US_ASCII);
             var accessToken = tokenService.getAccessToken(jetProperties.getProduto());
+            var produtoDto = objectMapper.readValue(body, ProdutoDTO.class);
+            var produto = produtoService.encontrarProdutoPeloIdentificadorOrigem(produtoDto.getExternalId());
+            var controleExecucaoFluxoEntidade = controleExecucaoFluxoEntidadeService.encontrarFluxoExecucaoEntidadeByIdEntidade(produto.getIdEntidade());
             produtoJet.atualizarProduto(accessToken, objectMapper.readValue(body, ProdutoDTO.class));
+            controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
 
         }
     }
 
     private List<CategoriaDTO> mockCategoria() {
         var categoriaDto = new CategoriaDTO();
-        categoriaDto.setIdCategory(0l);
-        categoriaDto.setDefaultt(true);
+        categoriaDto.setName(" ");
+        categoriaDto.setActive(true);
         categoriaDto.setExternalId("string");
         return Collections.singletonList(categoriaDto);
     }
+
+
 
     @Override
     public EnumIntegracaoStrategy getIntegracaoStrategy() {

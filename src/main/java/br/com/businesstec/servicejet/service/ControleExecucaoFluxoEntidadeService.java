@@ -12,7 +12,11 @@ public interface ControleExecucaoFluxoEntidadeService {
 
     ControleExecucaoFluxoEntidade atualizarIntegracao(ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade);
 
+    ControleExecucaoFluxoEntidade atualizarIntegracao(ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade, Long idFila);
+
     ControleExecucaoFluxoEntidade registrar(Long idControleExecucaoFluxo, Long idEntidade);
+
+    ControleExecucaoFluxoEntidade registrar(Long idControleExecucaoFluxo, Long idEntidade, Long idFila);
 
     ControleExecucaoFluxoEntidade encontrarFluxoExecucaoEntidadeByIdEntidade(Long idEntidade);
 }

@@ -1,8 +1,13 @@
 package br.com.businesstec.servicejet.client.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MarcaDTO extends EntityDTO {
+
+    @JsonProperty("idBrand")
+    private Long idBrand;
 
     @JsonProperty("name")
     private String name;
@@ -15,6 +20,14 @@ public class MarcaDTO extends EntityDTO {
 
     @JsonProperty("externalId")
     private String externalId;
+
+    public Long getIdBrand() {
+        return idBrand;
+    }
+
+    public void setIdBrand(Long idBrand) {
+        this.idBrand = idBrand;
+    }
 
     public String getName() {
         return name;

@@ -1,10 +1,14 @@
 package br.com.businesstec.servicejet.client.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.math.BigDecimal;
 import java.util.List;
 
-public class ProdutoDTO {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class ProdutoDTO extends EntityDTO {
 
+    private Long idProduct;
     private String code;
     private String name;
     private String promotionStore;
@@ -18,6 +22,14 @@ public class ProdutoDTO {
     private Boolean active;
     private List<CategoriaDTO> categories;
     private PesoDTO cubing;
+
+    public Long getIdProduct() {
+        return idProduct;
+    }
+
+    public void setIdProduct(Long idProduct) {
+        this.idProduct = idProduct;
+    }
 
     public String getCode() {
         return code;

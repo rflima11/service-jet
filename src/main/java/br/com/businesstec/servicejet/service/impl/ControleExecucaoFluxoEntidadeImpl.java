@@ -28,6 +28,12 @@ public class ControleExecucaoFluxoEntidadeImpl implements ControleExecucaoFluxoE
     }
 
     @Override
+    public ControleExecucaoFluxoEntidade atualizarIntegracao(ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade, Long idFila) {
+        controleExecucaoFluxoEntidade.setIdFila(idFila);
+        return controleExecucaoFluxoEntidadeRepository.save(controleExecucaoFluxoEntidade);
+    }
+
+    @Override
     public Long recuperarTipoEntidade(ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade) {
         return controleExecucaoFluxoEntidadeRepository.findTipoEntidadePorCtrlFluxo(controleExecucaoFluxoEntidade.getId());
     }
@@ -38,7 +44,12 @@ public class ControleExecucaoFluxoEntidadeImpl implements ControleExecucaoFluxoE
     }
 
     @Override
+    public ControleExecucaoFluxoEntidade registrar(Long idControleExecucaoFluxo, Long idEntidade, Long idFila) {
+        return controleExecucaoFluxoEntidadeRepository.save(new ControleExecucaoFluxoEntidade(idControleExecucaoFluxo, idEntidade, idFila));
+    }
+
+    @Override
     public ControleExecucaoFluxoEntidade encontrarFluxoExecucaoEntidadeByIdEntidade(Long idEntidade) {
-        return controleExecucaoFluxoEntidadeRepository.findByIdEntidade(idEntidade);
+        return controleExecucaoFluxoEntidadeRepository.findByIdEntidadeAndIntegradoFalse(idEntidade);
     }
 }

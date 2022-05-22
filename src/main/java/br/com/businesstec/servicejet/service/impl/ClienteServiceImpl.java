@@ -1,7 +1,7 @@
 package br.com.businesstec.servicejet.service.impl;
 
 import br.com.businesstec.model.entities.Cliente;
-import br.com.businesstec.model.entities.Entidade;
+import br.com.businesstec.model.entities.ControleExecucaoFluxo;
 import br.com.businesstec.model.repository.ClienteRepository;
 import br.com.businesstec.servicejet.client.AuthClienteJet;
 import br.com.businesstec.servicejet.client.ClienteJet;
@@ -10,6 +10,7 @@ import br.com.businesstec.servicejet.client.dto.Queue;
 import br.com.businesstec.servicejet.config.JetProperties;
 import br.com.businesstec.servicejet.enums.EnumEntidadeStrategy;
 import br.com.businesstec.servicejet.service.ClienteService;
+import br.com.businesstec.servicejet.service.ControleExecucaoFluxoEntidadeService;
 import br.com.businesstec.servicejet.service.EnderecoService;
 import br.com.businesstec.servicejet.service.EntidadeService;
 import org.springframework.stereotype.Service;
@@ -25,14 +26,16 @@ public class ClienteServiceImpl implements ClienteService {
     private final ClienteRepository clienteRepository;
     private final EnderecoService enderecoService;
     private final EntidadeService entidadeService;
+    private final ControleExecucaoFluxoEntidadeService controleExecucaoFluxoEntidadeService;
 
-    public ClienteServiceImpl(ClienteJet clienteJet, AuthClienteJet authClienteJet, JetProperties jetProperties, ClienteRepository clienteRepository, EnderecoService enderecoService, EntidadeService entidadeService) {
+    public ClienteServiceImpl(ClienteJet clienteJet, AuthClienteJet authClienteJet, JetProperties jetProperties, ClienteRepository clienteRepository, EnderecoService enderecoService, EntidadeService entidadeService, ControleExecucaoFluxoEntidadeService controleExecucaoFluxoEntidadeService) {
         this.clienteJet = clienteJet;
         this.authClienteJet = authClienteJet;
         this.jetProperties = jetProperties;
         this.clienteRepository = clienteRepository;
         this.enderecoService = enderecoService;
         this.entidadeService = entidadeService;
+        this.controleExecucaoFluxoEntidadeService = controleExecucaoFluxoEntidadeService;
     }
 
     @Override
@@ -41,7 +44,7 @@ public class ClienteServiceImpl implements ClienteService {
     }
 
     @Override
-    public Cliente salvar(Cliente cliente) {
+    public Cliente salvar(Cliente cliente, ControleExecucaoFluxo controleExecucaoFluxo, Long idFila) {
         var optionalCliente = clienteRepository.findByIdentificadorOrigem(cliente.getIdentificadorOrigem());
         if (optionalCliente.isPresent()) {
             var clienteSalvo = optionalCliente.get();
@@ -50,6 +53,7 @@ public class ClienteServiceImpl implements ClienteService {
         var entidade = entidadeService.salvarEntidade(EnumEntidadeStrategy.CLIENTES_STRATEGY);
         cliente.setIdEntidade(entidade.getId());
         var novoCliente = clienteRepository.save(cliente);
+        controleExecucaoFluxoEntidadeService.registrar(controleExecucaoFluxo.getId(), novoCliente.getIdEntidade(), idFila);
         return novoCliente;
     }
 }

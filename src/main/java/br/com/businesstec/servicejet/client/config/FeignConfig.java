@@ -31,7 +31,7 @@ public class FeignConfig {
         return requestTemplate -> {
             requestTemplate.header("Content-Type", "application/json");
             requestTemplate.query("integrationKey", jetProperties.getIntegrationKeyBase64());
-            requestTemplate.query("integrateCategory", "false");
+            requestTemplate.query("integrateCategory", "true");
         };
 
     }

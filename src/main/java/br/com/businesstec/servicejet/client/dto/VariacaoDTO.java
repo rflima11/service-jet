@@ -5,8 +5,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
-@JsonIgnoreProperties
-public class VariacaoDTO {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class VariacaoDTO extends EntityDTO {
+
+    @JsonProperty("idReference")
+    private Long idReference;
 
     @JsonProperty("name")
     private String name;
@@ -37,5 +40,13 @@ public class VariacaoDTO {
 
     public void setVariations(List<VariationsDTO> variations) {
         this.variations = variations;
+    }
+
+    public Long getIdReference() {
+        return idReference;
+    }
+
+    public void setIdReference(Long idReference) {
+        this.idReference = idReference;
     }
 }

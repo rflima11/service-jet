@@ -6,4 +6,6 @@ import br.com.businesstec.servicejet.enums.EnumEntidadeStrategy;
 public interface EntidadeService {
 
     Entidade salvarEntidade(EnumEntidadeStrategy enumEntidade);
+
+    Entidade encontrarIdEntidade(Long idEntidade);
 }

@@ -24,6 +24,5 @@ public interface ProdutoMapper {
     @Mapping(source = "largura", target = "cubing.largura")
     @Mapping(source = "comprimento", target = "cubing.comprimento")
     @Mapping(source = "diametro", target = "cubing.diametro")
-    @Mapping(source = "peso", target = "cubing.peso")
     ProdutoDTO map(Produto entity);
 }

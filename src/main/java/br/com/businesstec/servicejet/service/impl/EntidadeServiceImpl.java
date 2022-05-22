@@ -18,7 +18,14 @@ public class EntidadeServiceImpl implements EntidadeService {
     @Override
     public Entidade salvarEntidade(EnumEntidadeStrategy enumEntidade) {
         var entidade = new Entidade();
-        entidade.setIdEntidade(enumEntidade.getValue().intValue());
+        entidade.setIdEntidade(enumEntidade.getValue());
         return entidadeRepository.save(entidade);
     }
+
+    @Override
+    public Entidade encontrarIdEntidade(Long idEntidade) {
+        return entidadeRepository.findById(idEntidade).orElseThrow(() -> new RuntimeException("Não encontrada entidade"));
+    }
+
+
 }

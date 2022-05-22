@@ -1,28 +1,37 @@
 package br.com.businesstec.servicejet.client.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CategoriaDTO {
 
-    private Long idCategory;
-    @JsonProperty("default")
-    private Boolean defaultt;
+    private String name;
+    private String level;
     private String externalId;
+    private Boolean active;
 
-    public Long getIdCategory() {
-        return idCategory;
+    public String getName() {
+        return name;
     }
 
-    public void setIdCategory(Long idCategory) {
-        this.idCategory = idCategory;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public Boolean getDefaultt() {
-        return defaultt;
+    public String getLevel() {
+        return level;
     }
 
-    public void setDefaultt(Boolean defaultt) {
-        this.defaultt = defaultt;
+    public void setLevel(String level) {
+        this.level = level;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 
     public String getExternalId() {

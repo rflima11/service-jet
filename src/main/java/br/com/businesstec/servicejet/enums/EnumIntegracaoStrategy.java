@@ -8,7 +8,7 @@ public enum EnumIntegracaoStrategy {
     CATEGORIA_STRATEGY(3L),
     MARCA_STRATEGY(2L),
     PRODUTO_STRATEGY(1L),
-    PEDIDO_STRATEGY(5L),
+    PRODUTO_SKU_STRATEGY(5L),
     CLIENTES_STRATEGY(9L);
 
     private Long value;
@@ -28,5 +28,12 @@ public enum EnumIntegracaoStrategy {
             }
         }
         return null;
+    }
+
+    static class teste {
+        public static void main(String[] args) {
+            var strategy =EnumIntegracaoStrategy.getStrategyByIdEntidade(9L);
+            System.out.println(strategy);
+        }
     }
 }

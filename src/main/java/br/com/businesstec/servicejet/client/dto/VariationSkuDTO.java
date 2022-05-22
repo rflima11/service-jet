@@ -1,26 +1,19 @@
 package br.com.businesstec.servicejet.client.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class VariationsDTO {
+public class VariationSkuDTO {
 
-    @JsonProperty("name")
-    private String name;
-
-    @JsonProperty("externalId")
+    private Long idVariation;
     private String externalId;
 
-
-    public String getName() {
-        return name;
+    public Long getIdVariation() {
+        return idVariation;
     }
 
-
-    public void setName(String name) {
-        this.name = name;
+    public void setIdVariation(Long idVariation) {
+        this.idVariation = idVariation;
     }
 
     public String getExternalId() {
