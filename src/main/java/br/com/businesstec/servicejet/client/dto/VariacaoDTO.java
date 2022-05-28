@@ -15,6 +15,8 @@ public class VariacaoDTO extends EntityDTO {
     private String name;
     @JsonProperty("externalId")
     private String externalId;
+    @JsonProperty("referenceType")
+    private String referenceType;
     @JsonProperty("variations")
     private List<VariationsDTO> variations;
 
@@ -24,6 +26,14 @@ public class VariacaoDTO extends EntityDTO {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getReferenceType() {
+        return referenceType;
+    }
+
+    public void setReferenceType(String referenceType) {
+        this.referenceType = referenceType;
     }
 
     public String getExternalId() {

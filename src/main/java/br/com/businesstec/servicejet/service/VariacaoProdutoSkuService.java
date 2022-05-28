@@ -2,8 +2,10 @@ package br.com.businesstec.servicejet.service;
 
 import br.com.businesstec.model.entities.VariacaoProdutoSku;
 
+import java.util.List;
+
 public interface VariacaoProdutoSkuService {
 
-    VariacaoProdutoSku getVariacaoProdutoSkuPorIdSku(Long externalIdSku);
+    List<VariacaoProdutoSku> getVariacaoProdutoSkuPorIdSku(Long externalIdSku);
 
 }

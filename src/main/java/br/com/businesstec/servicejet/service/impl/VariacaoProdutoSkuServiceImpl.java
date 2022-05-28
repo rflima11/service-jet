@@ -5,6 +5,8 @@ import br.com.businesstec.model.repository.VariacaoProdutoSkuRepository;
 import br.com.businesstec.servicejet.service.VariacaoProdutoSkuService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class VariacaoProdutoSkuServiceImpl implements VariacaoProdutoSkuService {
 
@@ -15,7 +17,7 @@ public class VariacaoProdutoSkuServiceImpl implements VariacaoProdutoSkuService 
     }
 
     @Override
-    public VariacaoProdutoSku getVariacaoProdutoSkuPorIdSku(Long externalIdSku) {
-        return repository.findByIdProdutoSku(externalIdSku).orElseThrow(() -> new RuntimeException("Não encontrada variação produto sku " + externalIdSku));
+    public List<VariacaoProdutoSku> getVariacaoProdutoSkuPorIdSku(Long externalIdSku) {
+        return repository.findByIdProdutoSku(externalIdSku);
     }
 }

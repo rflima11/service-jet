@@ -18,7 +18,7 @@ public class ControleExecucaoFluxoEntidadeImpl implements ControleExecucaoFluxoE
 
     @Override
     public List<ControleExecucaoFluxoEntidade> recuperarControlesFluxos() {
-        return controleExecucaoFluxoEntidadeRepository.findByIntegradoFalse();
+        return controleExecucaoFluxoEntidadeRepository.findByIntegradoFalseOrderByIdAsc();
     }
 
     @Override

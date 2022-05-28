@@ -62,9 +62,7 @@ public class VariacaoServiceImpl implements VariacaoService {
     public void integrarVariacao(VariacaoDTO variacao, ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade) {
         var accessToken = tokenService.getAccessToken(jetProperties.getProduto());
         variacaoJet.adicionarNovaVariacao(accessToken, variacao);
-
         controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
-
     }
 
     @Recover
@@ -80,7 +78,9 @@ public class VariacaoServiceImpl implements VariacaoService {
                         .encontrarFluxoExecucaoEntidadeByIdEntidade(variacao.orElseThrow(() -> new RuntimeException("Não encontrado controle fluxo execução")).getIdEntidade());
                 Thread.sleep(300);
                 variacaoJet.atualizarVariacao(accessToken, variacaoDto);
-                controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
+                if (Objects.nonNull(controleExecucaoFluxoEntidade)) {
+                    controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
+                }
             }
         } catch (InterruptedException ex) {
             ex.printStackTrace();
@@ -88,33 +88,40 @@ public class VariacaoServiceImpl implements VariacaoService {
     }
 
     private VariacaoDTO verificarSeVariacaoJaEstaCadastrado(List<Queue<VariacaoDTO>> filaMarca, VariacaoDTO variacaoDTO) {
-        var objetoVariacao = filaMarca.stream().filter(f -> {
-            var variacaoDtoFila = f.getEntity();
-            return Objects.nonNull(variacaoDtoFila.getExternalId()) &&  variacaoDtoFila.getExternalId().equals(variacaoDTO.getExternalId());
-
-        }).collect(Collectors.toList());
-        var obj = objetoVariacao.stream().findFirst().get().getEntity();
-
-        for (VariationsDTO variacao: obj.getVariations()) {
-            var variacoes = variacaoDTO.getVariations();
-            for(int i = 0; i < variacoes.size(); i++) {
-                if (variacoes.get(i).getName().equals(variacao.getName()) && variacoes.get(i).getExternalId().equals(variacao.getExternalId())) {
-                    variacoes.remove(variacoes.get(i));
+        try {
+            var objetoVariacao = verificaSeVariacaoFoiCadastrada(filaMarca, variacaoDTO);
+            if (!objetoVariacao.isEmpty()) {
+                var obj = objetoVariacao.stream().findFirst();
+                if (obj.isPresent()) {
+                    var variationsDTO = obj.get().getEntity();
+                    if (Objects.nonNull(variationsDTO.getVariations())){
+                        for (VariationsDTO variacao: variationsDTO.getVariations()) {
+                            var variacoes = variacaoDTO.getVariations();
+                            for(int i = 0; i < variacoes.size(); i++) {
+                                if (variacoes.get(i).getName().equals(variacao.getName()) && variacoes.get(i).getExternalId().equals(variacao.getExternalId())) {
+                                    variacoes.remove(variacoes.get(i));
+                                }
+                            }
+                        }
+                    }
+                    var accessToken = tokenService.getAccessToken(jetProperties.getProduto());
+                    variacaoDTO.setIdReference(variationsDTO.getIdReference());
+                    Thread.sleep(300);
+                    variacaoJet.atualizarVariacao(accessToken, variacaoDTO);
                 }
             }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
-//        obj.getVariations().stream().forEach(v -> {
-//            var variacoes = variacaoDTO.getVariations();
-//            variacoes.forEach(vr -> {
-//                if (v.getName().equals(vr.getName())) {
-//                    variacoes.remove(vr);
-//                }
-//            });
-//        });
-
-        variacaoDTO.setIdReference(obj.getIdReference());
         return variacaoDTO;
+    }
+
+    private List<Queue<VariacaoDTO>> verificaSeVariacaoFoiCadastrada(List<Queue<VariacaoDTO>> filaMarca, VariacaoDTO variacaoDTO) {
+        return filaMarca.stream().filter(f -> {
+            var variacaoDtoFila = f.getEntity();
+            return Objects.nonNull(variacaoDtoFila.getExternalId()) &&  variacaoDtoFila.getExternalId().equals(variacaoDTO.getExternalId());
+        }).collect(Collectors.toList());
     }
 
 

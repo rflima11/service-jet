@@ -5,6 +5,7 @@ import br.com.businesstec.servicejet.client.ProdutoJet;
 import br.com.businesstec.servicejet.client.dto.BrandDTO;
 import br.com.businesstec.servicejet.client.dto.CategoriaDTO;
 import br.com.businesstec.servicejet.client.dto.ProdutoDTO;
+import br.com.businesstec.servicejet.client.dto.Queue;
 import br.com.businesstec.servicejet.config.JetProperties;
 import br.com.businesstec.servicejet.enums.EnumIntegracaoStrategy;
 import br.com.businesstec.servicejet.mapper.ProdutoMapper;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class ProdutoStrategyImpl implements IntegracaoStrategy {
@@ -48,35 +50,62 @@ public class ProdutoStrategyImpl implements IntegracaoStrategy {
     }
 
     @Override
-    @Retryable(FeignException.class)
+//    @Retryable(FeignException.class)
     public void executar(ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade) {
-        var produtoSalvo = produtoService.recuperarProdutoNaoIntegradoByIdEntidade(controleExecucaoFluxoEntidade.getIdEntidade());
-        var produtoDto = produtoMapper.map(produtoSalvo);
-        var produtoEcommerce = produtoEcommerceService.findByIdProduto(produtoSalvo.getId());
-        produtoDto.setPromotionStore(produtoEcommerce.getPromocaoLoja());
-        produtoDto.setCategories(categoriaProdutoService.recuperarCategorias(Long.valueOf(produtoDto.getExternalId())));
-        produtoDto.setBrand(new BrandDTO());
-        produtoDto.setFlagExhausted(true);
-        produtoDto.setActive(produtoEcommerce.isAtivo());
-        var accessToken = tokenService.getAccessToken(jetProperties.getProduto());
-        produtoJet.adicionarNovoProdutoJet(accessToken, produtoDto);
-        controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
-        System.out.println(produtoDto);
+        try {
+            var produtoSalvo = produtoService.recuperarProdutoNaoIntegradoByIdEntidade(controleExecucaoFluxoEntidade.getIdEntidade());
+            var produtoDto = produtoMapper.map(produtoSalvo);
+            var produtoEcommerce = produtoEcommerceService.findByIdProduto(produtoSalvo.getId());
+            produtoDto.setPromotionStore(produtoEcommerce.getPromocaoLoja());
+            produtoDto.setCategories(categoriaProdutoService.recuperarCategorias(Long.valueOf(produtoDto.getExternalId())));
+            produtoDto.setBrand(new BrandDTO());
+            produtoDto.setActive(produtoEcommerce.isAtivo());
+            var accessToken = tokenService.getAccessToken(jetProperties.getProduto());
+            var filaProdutos = produtoJet.getFilaProduto(accessToken).getBody();
+            Thread.sleep(300);
+
+            if (verificarSeProdutoFoiIntegrado(filaProdutos, produtoDto)) {
+                produtoJet.atualizarProduto(accessToken, produtoDto);
+                Thread.sleep(300);
+            } else {
+                produtoJet.adicionarNovoProdutoJet(accessToken, produtoDto);
+                Thread.sleep(300);
+
+            }
+            controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
+            System.out.println(produtoDto);
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
 
     }
 
-    @Recover
-    private void recover(FeignException e) throws JsonProcessingException {
-        if (e.contentUTF8().contains(MENSAGEM_ERRO_PRODUTO_JA_CADASTRADO)) {
-            var body = new String(e.request().body(), StandardCharsets.US_ASCII);
-            var accessToken = tokenService.getAccessToken(jetProperties.getProduto());
-            var produtoDto = objectMapper.readValue(body, ProdutoDTO.class);
-            var produto = produtoService.encontrarProdutoPeloIdentificadorOrigem(produtoDto.getExternalId());
-            var controleExecucaoFluxoEntidade = controleExecucaoFluxoEntidadeService.encontrarFluxoExecucaoEntidadeByIdEntidade(produto.getIdEntidade());
-            produtoJet.atualizarProduto(accessToken, objectMapper.readValue(body, ProdutoDTO.class));
-            controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
+//    @Recover
+//    private void recover(FeignException e) throws JsonProcessingException {
+//        if (e.contentUTF8().contains(MENSAGEM_ERRO_PRODUTO_JA_CADASTRADO)) {
+//            var body = new String(e.request().body(), StandardCharsets.US_ASCII);
+//            var accessToken = tokenService.getAccessToken(jetProperties.getProduto());
+//            var produtoDto = objectMapper.readValue(body, ProdutoDTO.class);
+//            var produto = produtoService.encontrarProdutoPeloIdentificadorOrigem(produtoDto.getExternalId());
+//            var controleExecucaoFluxoEntidade = controleExecucaoFluxoEntidadeService.encontrarFluxoExecucaoEntidadeByIdEntidade(produto.getIdEntidade());
+//            produtoJet.atualizarProduto(accessToken, objectMapper.readValue(body, ProdutoDTO.class));
+//            controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
+//
+//        }
+//    }
 
+    private boolean verificarSeProdutoFoiIntegrado(List<Queue<ProdutoDTO>> produtos, ProdutoDTO produtoDTO) {
+        var optProdutoSalvo = produtos.stream().filter(x -> {
+            var produto = x.getEntity();
+            return Objects.equals(produto.getExternalId(), produtoDTO.getExternalId());
+        }).findFirst();
+        if (optProdutoSalvo.isPresent()) {
+            produtoDTO.setIdProduct(optProdutoSalvo.get().getEntity().getIdProduct());
+            return true;
         }
+        return false;
     }
 
     private List<CategoriaDTO> mockCategoria() {

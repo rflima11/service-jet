@@ -23,4 +23,9 @@ public class ProdutoSkuServiceImpl implements ProdutoSkuService {
     public ProdutoSku recuperarPorIdEntidade(Long idEntidade) {
         return produtoSkuRepository.findByIdEntidade(idEntidade).orElseThrow(() -> new RuntimeException("Não encontrado SKU por ID entidade"));
     }
+
+    @Override
+    public ProdutoSku encontrarProdutoSkuPeloIdentificadorOrigem(String identificadorOrigem) {
+        return produtoSkuRepository.findByIdentificadorOrigem(identificadorOrigem).orElseThrow(() -> new RuntimeException("Não encontrado pelo identificador origem " + identificadorOrigem));
+    }
 }

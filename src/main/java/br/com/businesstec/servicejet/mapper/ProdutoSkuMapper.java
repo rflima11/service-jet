@@ -15,6 +15,7 @@ public interface ProdutoSkuMapper {
     @Mapping(source = "identificadorOrigem", target = "externalId")
     @Mapping(source = "codigo", target = "skuCode")
     @Mapping(source = "preco", target = "price")
+    @Mapping(source = "precoPromocional", target = "pricePromotion")
     @Mapping(source = "padrao", target = "standard")
     @Mapping(source = "estoque", target = "stock")
     @Mapping(source = "peso", target = "cubing.peso")

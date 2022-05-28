@@ -16,6 +16,7 @@ public interface VariacaoMapper {
 
     @Mapping(source = "descricao", target = "name")
     @Mapping(source = "identificadorOrigem", target = "externalId")
+    @Mapping(source = "tipoReferencia", target = "referenceType")
     VariacaoDTO map(Variacao entity);
 
 

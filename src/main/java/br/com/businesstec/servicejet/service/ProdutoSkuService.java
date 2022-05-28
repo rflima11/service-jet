@@ -8,4 +8,6 @@ public interface ProdutoSkuService {
 
     ProdutoSku recuperarPorIdEntidade(Long idEntidade);
 
+    ProdutoSku encontrarProdutoSkuPeloIdentificadorOrigem(String identificadorOrigem);
+
 }

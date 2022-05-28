@@ -1,6 +1,7 @@
 package br.com.businesstec.servicejet.client.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -8,11 +9,15 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProdutoDTO extends EntityDTO {
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long idProduct;
     private String code;
     private String name;
     private String promotionStore;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Boolean flagExhausted;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<ProdutoSkuDTO> skUs;
     private BigDecimal pricePromotion;
     private BrandDTO brand;
     private String imageHome;
@@ -22,6 +27,9 @@ public class ProdutoDTO extends EntityDTO {
     private Boolean active;
     private List<CategoriaDTO> categories;
     private PesoDTO cubing;
+    private String descriptionDetail;
+    private String descriptionDetailSummary;
+
 
     public Long getIdProduct() {
         return idProduct;
@@ -137,6 +145,30 @@ public class ProdutoDTO extends EntityDTO {
 
     public void setCubing(PesoDTO cubing) {
         this.cubing = cubing;
+    }
+
+    public List<ProdutoSkuDTO> getSkUs() {
+        return skUs;
+    }
+
+    public void setSkUs(List<ProdutoSkuDTO> skUs) {
+        this.skUs = skUs;
+    }
+
+    public String getDescriptionDetail() {
+        return descriptionDetail;
+    }
+
+    public void setDescriptionDetail(String descriptionDetail) {
+        this.descriptionDetail = descriptionDetail;
+    }
+
+    public String getDescriptionDetailSummary() {
+        return descriptionDetailSummary;
+    }
+
+    public void setDescriptionDetailSummary(String descriptionDetailSummary) {
+        this.descriptionDetailSummary = descriptionDetailSummary;
     }
 }
 

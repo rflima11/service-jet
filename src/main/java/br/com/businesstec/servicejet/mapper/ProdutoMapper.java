@@ -1,8 +1,6 @@
 package br.com.businesstec.servicejet.mapper;
 
-import br.com.businesstec.model.entities.Marca;
 import br.com.businesstec.model.entities.Produto;
-import br.com.businesstec.servicejet.client.dto.MarcaDTO;
 import br.com.businesstec.servicejet.client.dto.ProdutoDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -15,7 +13,9 @@ public interface ProdutoMapper {
     ProdutoMapper INSTANCE = Mappers.getMapper(ProdutoMapper.class);
 
     @Mapping(source = "codigo", target = "code")
-    @Mapping(source = "descricaoResumida", target = "name")
+    @Mapping(source = "descricao", target = "name")
+    @Mapping(source = "descricaoResumida", target = "descriptionDetailSummary")
+    @Mapping(source = "descricaoCompleta", target = "descriptionDetail")
     @Mapping(source = "estoque", target = "stock")
     @Mapping(source = "preco", target = "price")
     @Mapping(source = "identificadorOrigem", target = "externalId")
