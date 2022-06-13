@@ -12,6 +12,8 @@ public interface ControleExecucaoFluxoEntidadeService {
 
     ControleExecucaoFluxoEntidade atualizarIntegracao(ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade);
 
+    ControleExecucaoFluxoEntidade atualizarIntegracaoErro(ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade);
+
     ControleExecucaoFluxoEntidade atualizarIntegracao(ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade, Long idFila);
 
     ControleExecucaoFluxoEntidade registrar(Long idControleExecucaoFluxo, Long idEntidade);

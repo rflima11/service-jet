@@ -7,6 +7,6 @@ public interface CategoriaService {
 
     Categoria recuperarCategoriaNaoIntegradoByIdEntidade(Long idEntidade);
 
-    Categoria recuperarCategoriaPeloCodigo(String codigo);
+    Categoria recuperarCategoriaPeloCodigo(String codigo, Long idEntidade);
 
 }

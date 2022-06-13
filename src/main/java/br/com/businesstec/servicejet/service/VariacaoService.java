@@ -17,4 +17,6 @@ public interface VariacaoService {
 
     List<VariacaoItem> recuperarListaVariacoesByIdVariacao(Long idVariacao);
 
+    List<VariacaoItem> getVariacaoItemByIdVariacaoItem(Long idVariacaoItem);
+
 }

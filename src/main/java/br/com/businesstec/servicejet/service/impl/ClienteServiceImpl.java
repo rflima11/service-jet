@@ -45,15 +45,7 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Override
     public Cliente salvar(Cliente cliente, ControleExecucaoFluxo controleExecucaoFluxo, Long idFila) {
-        var optionalCliente = clienteRepository.findByIdentificadorOrigem(cliente.getIdentificadorOrigem());
-        if (optionalCliente.isPresent()) {
-            var clienteSalvo = optionalCliente.get();
-            cliente.setId(clienteSalvo.getId());
-        }
-        var entidade = entidadeService.salvarEntidade(EnumEntidadeStrategy.CLIENTES_STRATEGY);
-        cliente.setIdEntidade(entidade.getId());
-        var novoCliente = clienteRepository.save(cliente);
-        controleExecucaoFluxoEntidadeService.registrar(controleExecucaoFluxo.getId(), novoCliente.getIdEntidade(), idFila);
-        return novoCliente;
+        cliente.setIdEntidade(entidadeService.salvarEntidade(EnumEntidadeStrategy.CLIENTES_STRATEGY).getId());
+        return clienteRepository.save(cliente);
     }
 }

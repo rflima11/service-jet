@@ -1,8 +1,8 @@
 package br.com.businesstec.servicejet.service;
 
+import br.com.businesstec.model.entities.ControleExecucaoFluxoEntidade;
 import br.com.businesstec.model.entities.Produto;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface ProdutoService {
@@ -11,5 +11,5 @@ public interface ProdutoService {
 
     Produto encontrarProdutoPeloIdentificadorOrigem(String identificadorOrigem);
 
-    Long recuperarIdProductByExternalId(String externalId, String accessToken);
+    Optional<Long> recuperarIdProductByExternalId(String externalId, String accessToken, ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade);
 }

@@ -23,7 +23,7 @@ public class CategoriaProdutoServiceImpl implements CategoriaProdutoService {
         var listaCategorias = produtoCategoriaRepository.findByIdProduto(produtoId).stream().map(x -> {
             var categoriaDto = new CategoriaDTO();
             categoriaDto.setExternalId(String.valueOf(x.getIdCategoria()));
-            categoriaDto.setActive(true);
+            categoriaDto.setDefaultt(x.getPrincipal());
             return categoriaDto;
         }).collect(Collectors.toList());
         return listaCategorias.isEmpty() ? Collections.singletonList(getCategoriaDefault()) : listaCategorias;
@@ -32,7 +32,7 @@ public class CategoriaProdutoServiceImpl implements CategoriaProdutoService {
     private CategoriaDTO getCategoriaDefault() {
         var catDto = new CategoriaDTO();
         catDto.setExternalId("51"); // Categoria mais genérica possível, Cercamento Rurais
-        catDto.setActive(false);
+        catDto.setDefaultt(false);
         return catDto;
     }
 }

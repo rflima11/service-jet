@@ -14,11 +14,12 @@
 	<name>service-jet</name>
 	<description>Integração API Jet</description>
 	<properties>
+		<start-class>br.com.businesstec.servicejet.ServiceJetApplication</start-class>
 		<java.version>11</java.version>
 		<mapstruct.version>1.4.2.Final</mapstruct.version>
 		<spring-cloud.version>2021.0.1</spring-cloud.version>
-
 	</properties>
+	<packaging>war</packaging>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -53,9 +54,20 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20220320</version>
+		</dependency>
+
 		<dependency>
 			<groupId>br.com.businesstec</groupId>
 			<artifactId>model</artifactId>
@@ -76,8 +88,17 @@
 	</dependencyManagement>
 
 	<build>
+		<finalName>${artifactId}</finalName>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<excludes>
+					<exclude>**/application.properties</exclude>
+				</excludes>
+			</resource>
+		</resources>
 		<plugins>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>

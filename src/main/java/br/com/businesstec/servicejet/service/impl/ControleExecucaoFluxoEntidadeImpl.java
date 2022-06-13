@@ -28,6 +28,12 @@ public class ControleExecucaoFluxoEntidadeImpl implements ControleExecucaoFluxoE
     }
 
     @Override
+    public ControleExecucaoFluxoEntidade atualizarIntegracaoErro(ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade) {
+        controleExecucaoFluxoEntidade.setIntegrado(false);
+        return controleExecucaoFluxoEntidadeRepository.save(controleExecucaoFluxoEntidade);    }
+
+
+    @Override
     public ControleExecucaoFluxoEntidade atualizarIntegracao(ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade, Long idFila) {
         controleExecucaoFluxoEntidade.setIdFila(idFila);
         return controleExecucaoFluxoEntidadeRepository.save(controleExecucaoFluxoEntidade);
@@ -45,7 +51,12 @@ public class ControleExecucaoFluxoEntidadeImpl implements ControleExecucaoFluxoE
 
     @Override
     public ControleExecucaoFluxoEntidade registrar(Long idControleExecucaoFluxo, Long idEntidade, Long idFila) {
-        return controleExecucaoFluxoEntidadeRepository.save(new ControleExecucaoFluxoEntidade(idControleExecucaoFluxo, idEntidade, idFila));
+        var optControleExecucaoFluxo = controleExecucaoFluxoEntidadeRepository.findByIdEntidade(idEntidade);
+        var controleExecucaoFluxoEntidade = new ControleExecucaoFluxoEntidade(idControleExecucaoFluxo, idEntidade);
+        if (optControleExecucaoFluxo.isPresent())  {
+            controleExecucaoFluxoEntidade.setId(optControleExecucaoFluxo.get().getId());
+        }
+        return controleExecucaoFluxoEntidadeRepository.save(controleExecucaoFluxoEntidade);
     }
 
     @Override
