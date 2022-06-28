@@ -6,6 +6,7 @@ import br.com.businesstec.servicejet.service.ControleExecucaoFluxoEntidadeServic
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ControleExecucaoFluxoEntidadeImpl implements ControleExecucaoFluxoEntidadeService {
@@ -42,6 +43,11 @@ public class ControleExecucaoFluxoEntidadeImpl implements ControleExecucaoFluxoE
     @Override
     public Long recuperarTipoEntidade(ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade) {
         return controleExecucaoFluxoEntidadeRepository.findTipoEntidadePorCtrlFluxo(controleExecucaoFluxoEntidade.getId());
+    }
+
+    @Override
+    public Optional<ControleExecucaoFluxoEntidade> encontrarPeloIdControleFluxo(Long idControleFluxo) {
+        return controleExecucaoFluxoEntidadeRepository.findByIdControleExecucaoFluxo(idControleFluxo);
     }
 
     @Override

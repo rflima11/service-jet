@@ -14,6 +14,6 @@ import java.util.List;
 public interface PedidoJet {
 
     @GetMapping(name = "getPedidos", path = "/adm_order/GetQueue")
-    ResponseEntity<List<Queue<PedidoDTO>>> getClientes(@RequestHeader("Authorization") String accessToken);
+    ResponseEntity<List<Queue<PedidoDTO>>> getPedidos(@RequestHeader("Authorization") String accessToken);
 
 }

@@ -107,7 +107,6 @@ public class ProdutoSkuStrategy implements IntegracaoStrategy {
                 logger.info(String.format("Produto com externalId %s não encontrado na fila", produtoskuSalvo.getIdentificadorOrigemProduto()));
                 execucaoFluxoEntidadeEntregaService.registrarErro(controleExecucaoFluxoEntidade, String.format("Produto com externalId %s não encontrado na fila", produtoskuSalvo.getIdentificadorOrigemProduto()));
             }
-
         } catch (InterruptedException | JsonProcessingException e) {
             e.printStackTrace();
         }

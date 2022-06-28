@@ -3,7 +3,6 @@ package br.com.businesstec.servicejet.service.impl;
 import br.com.businesstec.model.entities.ControleExecucaoFluxoEntidade;
 import br.com.businesstec.model.entities.Produto;
 import br.com.businesstec.servicejet.client.ProdutoJet;
-import br.com.businesstec.servicejet.client.dto.MarcaDTO;
 import br.com.businesstec.servicejet.client.dto.ProdutoDTO;
 import br.com.businesstec.servicejet.config.JetProperties;
 import br.com.businesstec.servicejet.enums.EnumIntegracaoStrategy;
@@ -11,7 +10,6 @@ import br.com.businesstec.servicejet.mapper.ProdutoMapper;
 import br.com.businesstec.servicejet.service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import feign.FeignException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.retry.annotation.Backoff;
@@ -19,7 +17,6 @@ import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 @Service

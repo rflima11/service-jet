@@ -3,12 +3,15 @@ package br.com.businesstec.servicejet.service;
 import br.com.businesstec.model.entities.ControleExecucaoFluxoEntidade;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ControleExecucaoFluxoEntidadeService {
 
     List<ControleExecucaoFluxoEntidade> recuperarControlesFluxos();
 
     Long recuperarTipoEntidade(ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade);
+
+    Optional<ControleExecucaoFluxoEntidade> encontrarPeloIdControleFluxo(Long idControleFluxo);
 
     ControleExecucaoFluxoEntidade atualizarIntegracao(ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade);
 
