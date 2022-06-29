@@ -14,8 +14,8 @@ public class VariacaoItemServiceImpl implements VariacaoItemService {
         this.variacaoItemRepository = variacaoItemRepository;
     }
 
-    @Override
-    public VariacaoItem getVariacaoItem(String findByVariacaoItem) {
-        return variacaoItemRepository.findByIdentificadorOrigem(findByVariacaoItem).orElseThrow(() -> new RuntimeException("Não encontrada variação Item"));
+
+    public VariacaoItem getVariacaoItemByIdVariacaoAndIdentificadorOrigem(Long variacao, String identificadorOrigem) {
+        return variacaoItemRepository.findByIdVariacaoAndIdentificadorOrigem(variacao, identificadorOrigem).orElseThrow(() -> new RuntimeException("Não encontrada variação para este SKU"));
     }
 }

@@ -19,6 +19,7 @@ public interface ProdutoMapper {
     @Mapping(source = "estoque", target = "stock")
     @Mapping(source = "preco", target = "price")
     @Mapping(source = "identificadorOrigem", target = "externalId")
+    @Mapping(source = "identificadorOrigemMarca", target = "brand.externalId")
     @Mapping(source = "precoPromocional", target = "pricePromotion")
     @Mapping(source = "altura", target = "cubing.altura")
     @Mapping(source = "largura", target = "cubing.largura")

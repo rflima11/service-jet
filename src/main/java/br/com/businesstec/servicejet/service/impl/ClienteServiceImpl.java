@@ -6,15 +6,14 @@ import br.com.businesstec.model.repository.ClienteRepository;
 import br.com.businesstec.servicejet.client.AuthClienteJet;
 import br.com.businesstec.servicejet.client.ClienteJet;
 import br.com.businesstec.servicejet.client.dto.ClienteDTO;
+import br.com.businesstec.servicejet.client.dto.IdFilaDTO;
 import br.com.businesstec.servicejet.client.dto.Queue;
 import br.com.businesstec.servicejet.config.JetProperties;
 import br.com.businesstec.servicejet.enums.EnumEntidadeStrategy;
-import br.com.businesstec.servicejet.service.ClienteService;
-import br.com.businesstec.servicejet.service.ControleExecucaoFluxoEntidadeService;
-import br.com.businesstec.servicejet.service.EnderecoService;
-import br.com.businesstec.servicejet.service.EntidadeService;
+import br.com.businesstec.servicejet.service.*;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -23,15 +22,17 @@ public class ClienteServiceImpl implements ClienteService {
     private final ClienteJet clienteJet;
     private final AuthClienteJet authClienteJet;
     private final JetProperties jetProperties;
+    private final TokenService tokenService;
     private final ClienteRepository clienteRepository;
     private final EnderecoService enderecoService;
     private final EntidadeService entidadeService;
     private final ControleExecucaoFluxoEntidadeService controleExecucaoFluxoEntidadeService;
 
-    public ClienteServiceImpl(ClienteJet clienteJet, AuthClienteJet authClienteJet, JetProperties jetProperties, ClienteRepository clienteRepository, EnderecoService enderecoService, EntidadeService entidadeService, ControleExecucaoFluxoEntidadeService controleExecucaoFluxoEntidadeService) {
+    public ClienteServiceImpl(ClienteJet clienteJet, AuthClienteJet authClienteJet, JetProperties jetProperties, TokenService tokenService, ClienteRepository clienteRepository, EnderecoService enderecoService, EntidadeService entidadeService, ControleExecucaoFluxoEntidadeService controleExecucaoFluxoEntidadeService) {
         this.clienteJet = clienteJet;
         this.authClienteJet = authClienteJet;
         this.jetProperties = jetProperties;
+        this.tokenService = tokenService;
         this.clienteRepository = clienteRepository;
         this.enderecoService = enderecoService;
         this.entidadeService = entidadeService;
@@ -45,15 +46,12 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Override
     public Cliente salvar(Cliente cliente, ControleExecucaoFluxo controleExecucaoFluxo, Long idFila) {
-        var optionalCliente = clienteRepository.findByIdentificadorOrigem(cliente.getIdentificadorOrigem());
-        if (optionalCliente.isPresent()) {
-            var clienteSalvo = optionalCliente.get();
-            cliente.setId(clienteSalvo.getId());
-        }
-        var entidade = entidadeService.salvarEntidade(EnumEntidadeStrategy.CLIENTES_STRATEGY);
-        cliente.setIdEntidade(entidade.getId());
-        var novoCliente = clienteRepository.save(cliente);
-        controleExecucaoFluxoEntidadeService.registrar(controleExecucaoFluxo.getId(), novoCliente.getIdEntidade(), idFila);
-        return novoCliente;
+        cliente.setIdEntidade(entidadeService.salvarEntidade(EnumEntidadeStrategy.CLIENTES_STRATEGY).getId());
+        return clienteRepository.save(cliente);
+    }
+
+    @Override
+    public void excluirFila(Long idFila) {
+        clienteJet.deletarFila(tokenService.getAccessToken(jetProperties.getCliente()), Collections.singletonList(new IdFilaDTO(idFila)));
     }
 }

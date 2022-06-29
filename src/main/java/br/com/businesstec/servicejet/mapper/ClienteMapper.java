@@ -21,8 +21,8 @@ public interface ClienteMapper {
     @Mapping(source = "rg", target = "rgIe")
     @Mapping(source = "contact", target = "contato")
     @Mapping(source = "typeCustomer", target = "tipoPessoa")
-
     @Mapping(source = "gender", target = "sexo")
+    @Mapping(source = "email", target = "email")
     @Mapping(source = "dateBirth", target = "dataNascimento")
     @Mapping(source = "idCustomer", target = "identificadorOrigem")
     @Mapping(source = "phone.phone1", target = "telefone1")

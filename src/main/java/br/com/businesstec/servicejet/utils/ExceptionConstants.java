@@ -6,7 +6,9 @@ package br.com.businesstec.servicejet.utils;
 public enum ExceptionConstants {
 
     ERRO_CONVERTER_DTO("Não foi possível converter o DTO "),
+    ENTIDADE_NAO_INTEGRADA("Não foi possível integrar a entidade"),
     OK_HTTP_EXCEPTION_MSG("Não foi possível realizar a chamada");
+
 
     String value;
 

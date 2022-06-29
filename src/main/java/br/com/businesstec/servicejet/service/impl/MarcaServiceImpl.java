@@ -8,15 +8,14 @@ import br.com.businesstec.servicejet.client.dto.MarcaDTO;
 import br.com.businesstec.servicejet.client.dto.Queue;
 import br.com.businesstec.servicejet.config.JetProperties;
 import br.com.businesstec.servicejet.mapper.MarcaMapper;
-import br.com.businesstec.servicejet.service.ControleExecucaoFluxoEntidadeService;
-import br.com.businesstec.servicejet.service.MarcaEcommerceService;
-import br.com.businesstec.servicejet.service.MarcaService;
-import br.com.businesstec.servicejet.service.TokenService;
+import br.com.businesstec.servicejet.service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.Feign;
 import feign.FeignException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -37,6 +36,7 @@ public class MarcaServiceImpl implements MarcaService {
 
     private final MarcaRepository marcaRepository;
     private final ControleExecucaoFluxoEntidadeService controleExecucaoFluxoEntidadeService;
+    private final ControleExecucaoFluxoEntidadeEntregaService controleExecucaoFluxoEntidadeEntregaService;
     private final MarcaMapper marcaMapper;
     private final JetProperties jetProperties;
     private final TokenService tokenService;
@@ -44,9 +44,10 @@ public class MarcaServiceImpl implements MarcaService {
     private final MarcaClient marcaClient;
     private final ObjectMapper objectMapper;
 
-    public MarcaServiceImpl(MarcaRepository marcaRepository, ControleExecucaoFluxoEntidadeService controleExecucaoFluxoEntidadeService, JetProperties jetProperties, TokenService tokenService, MarcaEcommerceService marcaEcommerceService, MarcaClient marcaClient, ObjectMapper objectMapper) {
+    public MarcaServiceImpl(MarcaRepository marcaRepository, ControleExecucaoFluxoEntidadeService controleExecucaoFluxoEntidadeService, ControleExecucaoFluxoEntidadeEntregaService controleExecucaoFluxoEntidadeEntregaService, JetProperties jetProperties, TokenService tokenService, MarcaEcommerceService marcaEcommerceService, MarcaClient marcaClient, ObjectMapper objectMapper) {
         this.marcaRepository = marcaRepository;
         this.controleExecucaoFluxoEntidadeService = controleExecucaoFluxoEntidadeService;
+        this.controleExecucaoFluxoEntidadeEntregaService = controleExecucaoFluxoEntidadeEntregaService;
         this.jetProperties = jetProperties;
         this.tokenService = tokenService;
         this.marcaEcommerceService = marcaEcommerceService;
@@ -71,7 +72,11 @@ public class MarcaServiceImpl implements MarcaService {
     }
 
     @Override
-    @Retryable(FeignException.class)
+    @Retryable(
+            value = RuntimeException.class,
+            maxAttemptsExpression = "${config.retry.maxAttempts}",
+            backoff = @Backoff(delayExpression = "${config.retry.maxDelay}")
+    )
     public void integrarMarcas(Marca marca, ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade) {
         try {
             logger.info("INICIANDO INTEGRAÇÃO MARCA " + marca.getDescricao());
@@ -79,9 +84,6 @@ public class MarcaServiceImpl implements MarcaService {
             var marcaEcommerce = marcaEcommerceService.encontrarPeloIdMarca(marca.getId());
             marcaDto.setActive(marcaEcommerce.getAtivo());
             var accessToken = tokenService.getAccessToken(jetProperties.getProduto());
-            var filaMarca = marcaClient.getMarcas(accessToken);
-
-
             var marcaSalva = marcaClient.getIdentificadorMarca(accessToken, Collections.singletonList(Long.parseLong(marcaDto.getExternalId()))).getBody();
             logger.info("DETECTADO " + marcaSalva.size() + " JÁ CADASTRADA");
 
@@ -96,6 +98,7 @@ public class MarcaServiceImpl implements MarcaService {
                 logger.info("ATUALIZAÇÃO MARCA " +  marca.getDescricao() + " FEITA COM SUCESSO");
             }
             controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
+            controleExecucaoFluxoEntidadeEntregaService.registrarExecucao(controleExecucaoFluxoEntidade);
             logger.info(String.format("MARCA %s INTEGRADA COM SUCESSO ", marcaDto.getName()));
 
         } catch (InterruptedException e) {
@@ -113,23 +116,9 @@ public class MarcaServiceImpl implements MarcaService {
     }
 
     @Recover
-    private void recover(FeignException e) throws JsonProcessingException {
-
-        try {
-            if (e.contentUTF8().contains(MENSAGEM_ERRO_MARCA_JA_CADASTRADA)) {
-                var body = new String(e.request().body(), StandardCharsets.US_ASCII);
-                var marcaDto = objectMapper.readValue(body, MarcaDTO.class);
-                var marca = marcaRepository.findByIdentificadorOrigem(marcaDto.getExternalId()).orElseThrow(() -> new RuntimeException("Marca não encontrada com o ID " + marcaDto.getExternalId()));
-                var controleExecucaoFluxoEntidade = controleExecucaoFluxoEntidadeService.encontrarFluxoExecucaoEntidadeByIdEntidade(marca.getIdEntidade());
-                var accessToken = tokenService.getAccessToken(jetProperties.getProduto());
-                Thread.sleep(300);
-                marcaClient.atualizarMarca(accessToken, objectMapper.readValue(body, MarcaDTO.class));
-                controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
-            }
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
-        }
-
+    private void recover(RuntimeException e, ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade) {
+        controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
+        controleExecucaoFluxoEntidadeEntregaService.registrarErro(controleExecucaoFluxoEntidade, e.getMessage());
     }
 
     @Override

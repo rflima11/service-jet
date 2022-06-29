@@ -27,10 +27,17 @@ public class ControleExecucaoFluxoListener implements ApplicationListener<Contro
     @Override
     public void onApplicationEvent(ControleExecucaoFluxoEntidadeEvent event) {
         var controleExecucaoFluxoEntidade = event.getControleExecucaoFluxoEntidade();
-        logger.info(String.format("Nova mensagem %s", controleExecucaoFluxoEntidade.getIdControleExecucaoFluxo()));
         var entidade = entidadeService.encontrarIdEntidade(controleExecucaoFluxoEntidade.getIdEntidade());
         var enumIntegracaoStrategy = EnumIntegracaoStrategy.getStrategyByIdEntidade(entidade.getIdEntidade());
         var strategy = integracaoStrategyFactory.findStrategy(enumIntegracaoStrategy);
+
+        logger.info("==========================================================");
+        logger.info(String.format("Nova mensagem detectada ID: %s ", controleExecucaoFluxoEntidade.getIdControleExecucaoFluxo()));
+        logger.info(String.format("ID Entidade: %s ", controleExecucaoFluxoEntidade.getIdEntidade()));
+        logger.info(String.format("STRATEGY: %s ", enumIntegracaoStrategy));
+        logger.info("==========================================================");
+
+
         strategy.executar(controleExecucaoFluxoEntidade);
     }
 }

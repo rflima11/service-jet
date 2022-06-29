@@ -5,6 +5,8 @@ import br.com.businesstec.model.repository.CategoriaRepository;
 import br.com.businesstec.servicejet.service.CategoriaService;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Service
 public class CategoriaServiceImpl implements CategoriaService {
 
@@ -20,7 +22,7 @@ public class CategoriaServiceImpl implements CategoriaService {
     }
 
     @Override
-    public Categoria recuperarCategoriaPeloCodigo(String codigo) {
-        return categoriaRepository.findByCodigo(codigo).orElseThrow(() -> new RuntimeException("Categoria não encontrada com o código" + codigo));
+    public Categoria recuperarCategoriaPeloCodigo(String codigo, Long idEntidade) {
+        return categoriaRepository.findByCodigo(codigo).stream().filter(x -> Objects.equals(x.getCodigo(), codigo)).findFirst().orElseThrow(() -> new RuntimeException("Não foi encontrada categoria pai código " + codigo));
     }
 }

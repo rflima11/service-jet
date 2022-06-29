@@ -20,6 +20,7 @@ public class ProdutoSkuDTO {
     private Boolean active;
     private List<VariationSkuDTO> variations;
 
+
     public ProdutoSkuDTO() {
         variations = new ArrayList<>();
     }
@@ -107,4 +108,5 @@ public class ProdutoSkuDTO {
     public void setVariations(List<VariationSkuDTO> variations) {
         this.variations = variations;
     }
+
 }

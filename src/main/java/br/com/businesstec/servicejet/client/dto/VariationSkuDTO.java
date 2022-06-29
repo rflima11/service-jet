@@ -8,6 +8,11 @@ public class VariationSkuDTO {
     private Long idVariation;
     private String externalId;
 
+    public VariationSkuDTO() {}
+
+    public VariationSkuDTO(String externalId) {
+        this.externalId = externalId;
+    }
     public Long getIdVariation() {
         return idVariation;
     }

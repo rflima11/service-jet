@@ -24,13 +24,6 @@ public class EnderecoServiceImpl implements EnderecoService  {
 
         var endereco = enderecoMapper.map(enderecoDto);
         endereco.setIdCliente(cliente.getId());
-
-        var enderecoOptional = enderecoRepository.findByIdentificadorOrigem(endereco.getIdentificadorOrigem());
-
-        if (enderecoOptional.isPresent()) {
-            var enderecoSalvo = enderecoOptional.get();
-            endereco.setId(enderecoSalvo.getId());
-        }
         return enderecoRepository.save(endereco);
     }
 }

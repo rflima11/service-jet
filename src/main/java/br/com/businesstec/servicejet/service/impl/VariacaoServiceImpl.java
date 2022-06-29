@@ -13,10 +13,13 @@ import br.com.businesstec.servicejet.service.ControleExecucaoFluxoEntidadeServic
 import br.com.businesstec.servicejet.service.TokenService;
 import br.com.businesstec.servicejet.service.VariacaoService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import feign.FeignException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -25,7 +28,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 public class VariacaoServiceImpl implements VariacaoService {
@@ -58,70 +60,53 @@ public class VariacaoServiceImpl implements VariacaoService {
     }
 
     @Override
-    @Retryable(FeignException.class)
-    public void integrarVariacao(VariacaoDTO variacao, ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade) {
-        var accessToken = tokenService.getAccessToken(jetProperties.getProduto());
-        variacaoJet.adicionarNovaVariacao(accessToken, variacao);
-        controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
-    }
+    @Retryable(
+            value = RuntimeException.class,
+            maxAttemptsExpression = "${config.retry.maxAttempts}",
+            backoff = @Backoff(delayExpression = "${config.retry.maxDelay}")
+    )
+    public void integrarVariacao(VariacaoDTO variacaoDto, ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade) {
 
-    @Recover
-    private void recover(FeignException e) throws JsonProcessingException {
         try {
-            if (e.contentUTF8().contains(MENSAGEM_ERRO_VARIACAO_JA_CADASTRADA) || e.contentUTF8().contains(MENSAGEM_ERRO_CODIGO_JA_CADASTRADO)) {
-                var body = new String(e.request().body(), StandardCharsets.US_ASCII);
-                var accessToken = tokenService.getAccessToken(jetProperties.getProduto());
-                var variacaoDto = objectMapper.readValue(body, VariacaoDTO.class);
-                variacaoDto = verificarSeVariacaoJaEstaCadastrado(variacaoJet.getVariacoes(accessToken).getBody(), variacaoDto);
-                var variacao = variacaoRepository.findByIdentificadorOrigem(variacaoDto.getExternalId());
-                var controleExecucaoFluxoEntidade = controleExecucaoFluxoEntidadeService
-                        .encontrarFluxoExecucaoEntidadeByIdEntidade(variacao.orElseThrow(() -> new RuntimeException("Não encontrado controle fluxo execução")).getIdEntidade());
-                Thread.sleep(300);
-                variacaoJet.atualizarVariacao(accessToken, variacaoDto);
-                if (Objects.nonNull(controleExecucaoFluxoEntidade)) {
-                    controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
-                }
+            logger.info("INICIANDO INTEGRAÇÃO VARIAÇÃO " + variacaoDto.getName());
+
+            logger.info("======= "  + " OBJETO ENVIADO: "+ " =======");
+            logger.info(objectMapper.writeValueAsString(variacaoDto));
+            logger.info("======================");
+
+            var accessToken = tokenService.getAccessToken(jetProperties.getProduto());
+            if (verificaSeVariacaoFoiCadastrada(variacaoDto, accessToken)) {
+                atualizaVariacao(variacaoDto);
+            } else {
+                variacaoJet.adicionarNovaVariacao(accessToken, variacaoDto);
+                logger.info("NOVA VARIAÇÃO ADICIONADA " + variacaoDto.getName());
+
             }
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
+            controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
+            controleExecucaoFluxoEntidadeEntregaService.registrarExecucao(controleExecucaoFluxoEntidade);
+
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
         }
     }
 
-    private VariacaoDTO verificarSeVariacaoJaEstaCadastrado(List<Queue<VariacaoDTO>> filaMarca, VariacaoDTO variacaoDTO) {
+    private void atualizaVariacao(VariacaoDTO variacaoDTO) {
         try {
-            var objetoVariacao = verificaSeVariacaoFoiCadastrada(filaMarca, variacaoDTO);
-            if (!objetoVariacao.isEmpty()) {
-                var obj = objetoVariacao.stream().findFirst();
-                if (obj.isPresent()) {
-                    var variationsDTO = obj.get().getEntity();
-                    if (Objects.nonNull(variationsDTO.getVariations())){
-                        for (VariationsDTO variacao: variationsDTO.getVariations()) {
-                            var variacoes = variacaoDTO.getVariations();
-                            for(int i = 0; i < variacoes.size(); i++) {
-                                if (variacoes.get(i).getName().equals(variacao.getName()) && variacoes.get(i).getExternalId().equals(variacao.getExternalId())) {
-                                    variacoes.remove(variacoes.get(i));
-                                }
-                            }
-                        }
-                    }
-                    var accessToken = tokenService.getAccessToken(jetProperties.getProduto());
-                    variacaoDTO.setIdReference(variationsDTO.getIdReference());
-                    Thread.sleep(300);
-                    variacaoJet.atualizarVariacao(accessToken, variacaoDTO);
-                }
-            }
+            logger.info("VARIAÇÃO " + variacaoDTO.getName() + " JÁ INTEGRADA, INICIANDO ATUALIZAÇÃO");
+            var accessToken = tokenService.getAccessToken(jetProperties.getProduto());
+
+            Thread.sleep(300);
+            variacaoJet.atualizarVariacao(accessToken, variacaoDTO);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-        return variacaoDTO;
     }
 
-    private List<Queue<VariacaoDTO>> verificaSeVariacaoFoiCadastrada(List<Queue<VariacaoDTO>> filaMarca, VariacaoDTO variacaoDTO) {
-        return filaMarca.stream().filter(f -> {
+    private boolean verificaSeVariacaoFoiCadastrada(VariacaoDTO variacaoDTO, String accessToken) {
+        return variacaoJet.getVariacoes(accessToken).getBody().stream().anyMatch(f -> {
             var variacaoDtoFila = f.getEntity();
-            return Objects.nonNull(variacaoDtoFila.getExternalId()) &&  variacaoDtoFila.getExternalId().equals(variacaoDTO.getExternalId());
-        }).collect(Collectors.toList());
+            return Objects.nonNull(variacaoDtoFila.getExternalId()) && variacaoDtoFila.getExternalId().equals(variacaoDTO.getExternalId()) || variacaoDtoFila.getName().equals(variacaoDTO.getName());
+        });
     }
 
 
@@ -145,5 +130,16 @@ public class VariacaoServiceImpl implements VariacaoService {
     @Override
     public List<VariacaoItem> recuperarListaVariacoesByIdVariacao(Long idVariacao) {
         return variacaoItemRepository.findByIdVariacao(idVariacao);
+    }
+
+    @Override
+    public List<VariacaoItem> getVariacaoItemByIdVariacaoItem(Long idVariacaoItem) {
+        return variacaoItemRepository.findByIdVariacao(idVariacaoItem);
+    }
+
+    @Recover
+    private void recover(RuntimeException e, ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade) {
+        controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
+        controleExecucaoFluxoEntidadeEntregaService.registrarErro(controleExecucaoFluxoEntidade, e.getMessage());
     }
 }

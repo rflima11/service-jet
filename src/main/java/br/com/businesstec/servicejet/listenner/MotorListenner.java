@@ -16,7 +16,6 @@ public class MotorListenner {
 
     private static final Logger logger = LoggerFactory.getLogger(MotorListenner.class);
 
-
     private final ObjectMapper objectMapper;
     private final ApplicationEventPublisher applicationEventPublisher;
 

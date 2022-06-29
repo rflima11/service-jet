@@ -1,21 +1,26 @@
 package br.com.businesstec.servicejet.service.impl;
 
+import br.com.businesstec.model.entities.ControleExecucaoFluxoEntidade;
 import br.com.businesstec.model.entities.Produto;
 import br.com.businesstec.model.repository.ProdutoRepository;
 import br.com.businesstec.servicejet.client.ProdutoJet;
+import br.com.businesstec.servicejet.service.ControleExecucaoFluxoEntidadeEntregaService;
 import br.com.businesstec.servicejet.service.ProdutoService;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class ProdutoServiceImpl implements ProdutoService {
 
     private final ProdutoRepository produtoRepository;
+    private final ControleExecucaoFluxoEntidadeEntregaService controleExecucaoFluxoEntidadeEntregaService;
     private final ProdutoJet produtoJet;
 
-    public ProdutoServiceImpl(ProdutoRepository produtoRepository, ProdutoJet produtoJet) {
+    public ProdutoServiceImpl(ProdutoRepository produtoRepository, ControleExecucaoFluxoEntidadeEntregaService controleExecucaoFluxoEntidadeEntregaService, ProdutoJet produtoJet) {
         this.produtoRepository = produtoRepository;
+        this.controleExecucaoFluxoEntidadeEntregaService = controleExecucaoFluxoEntidadeEntregaService;
         this.produtoJet = produtoJet;
     }
 
@@ -30,7 +35,7 @@ public class ProdutoServiceImpl implements ProdutoService {
     }
 
     @Override
-    public Long recuperarIdProductByExternalId(String externalId, String accessToken) {
+    public Optional<Long> recuperarIdProductByExternalId(String externalId, String accessToken, ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade) {
         var filaProduto = produtoJet.getFilaProduto(accessToken).getBody();
 
         var produto = filaProduto.stream().filter(entity -> {
@@ -38,6 +43,11 @@ public class ProdutoServiceImpl implements ProdutoService {
             return Objects.equals(produtoDTO.getExternalId(), externalId);
         }).findFirst();
 
-        return produto.orElseThrow(() -> new RuntimeException("Produto não encontrado na fila com o external ID: " + externalId)).getEntity().getIdProduct();
+        if (produto.isPresent()) {
+            return Optional.of(produto.get().getEntity().getIdProduct());
+        } else {
+            return Optional.empty();
+        }
+
     }
 }

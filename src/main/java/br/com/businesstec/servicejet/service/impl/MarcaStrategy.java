@@ -27,12 +27,6 @@ public class MarcaStrategy implements IntegracaoStrategy {
         var marca = marcaService.recuperarMarcaNaoIntegradoByIdEntidade(controleExecucaoFluxoEntidade.getIdEntidade());
 
 
-//        var marcas = marcaService.recuperarMarcasNaoIntegradas();
-//
-//        logger.info("=============================================================================");
-//        logger.info("MARCAS ENCONTRADAS: " + marcas.size());
-//        logger.info("=============================================================================");
-
         marcaService.integrarMarcas(marca, controleExecucaoFluxoEntidade);
     }
 

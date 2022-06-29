@@ -24,5 +24,16 @@ public class ControleExecucaoFluxoEntidadeEntregaServiceImpl implements Controle
         return repository.save(new ControleExecucaoFluxoEntidadeEntrega(controleExecucaoFluxoEntidade.getId(), false));
     }
 
+    @Override
+    public ControleExecucaoFluxoEntidadeEntrega registrarErro(ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade, String descricaoErro) {
+        controleExecucaoFluxoEntidadeService.atualizarIntegracaoErro(controleExecucaoFluxoEntidade);
+        return repository.save(new ControleExecucaoFluxoEntidadeEntrega(controleExecucaoFluxoEntidade.getId(), true, descricaoErro));
+    }
+
+    @Override
+    public ControleExecucaoFluxoEntidadeEntrega encontrarPeloIdControleExecucaoFluxo(Long idControleExecucaoFluxo) {
+        return repository.findByIdControleExecucaoFluxoEntidade(idControleExecucaoFluxo).orElseThrow(() -> new RuntimeException("Não encontrado ControleExecucaoFluxoEntidadeEntrega com o ID " + idControleExecucaoFluxo));
+    }
+
 
 }

@@ -32,6 +32,8 @@ public class ClienteDTO extends EntityDTO {
     private String resale;
     @JsonProperty("ip")
     private String ip;
+    @JsonProperty("email")
+    private String email;
     @JsonProperty("dateBirth")
     private String dateBirth;
     @JsonProperty("status")
@@ -197,5 +199,21 @@ public class ClienteDTO extends EntityDTO {
 
     public void setExternalId(String externalId) {
         this.externalId = externalId;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public List<AddressDTO> getAddress() {
+        return address;
+    }
+
+    public void setAddress(List<AddressDTO> address) {
+        this.address = address;
     }
 }

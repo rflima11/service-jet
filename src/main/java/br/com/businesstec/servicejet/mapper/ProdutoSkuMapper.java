@@ -25,4 +25,6 @@ public interface ProdutoSkuMapper {
     @Mapping(source = "diametro", target = "cubing.diametro")
     ProdutoSkuDTO map(ProdutoSku entity);
 
+
+
 }

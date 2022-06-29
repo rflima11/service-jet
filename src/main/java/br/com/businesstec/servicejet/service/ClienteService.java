@@ -13,4 +13,5 @@ public interface ClienteService {
 
     Cliente salvar(Cliente cliente, ControleExecucaoFluxo controleExecucaoFluxo, Long idFila);
 
+    void excluirFila(Long idFila);
 }

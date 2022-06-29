@@ -1,10 +1,8 @@
 package br.com.businesstec.servicejet.client.config;
 
-import br.com.businesstec.servicejet.client.AuthClienteJet;
 import br.com.businesstec.servicejet.config.JetProperties;
 import feign.Logger;
 import feign.RequestInterceptor;
-import feign.codec.ErrorDecoder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -23,8 +21,6 @@ public class FeignConfig {
     Logger.Level feignLoggerLevel() {
         return Logger.Level.FULL;
     }
-
-
 
     @Bean
     public RequestInterceptor requestInterceptor() {
