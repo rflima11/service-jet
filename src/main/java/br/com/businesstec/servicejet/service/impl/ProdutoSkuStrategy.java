@@ -4,17 +4,14 @@ import br.com.businesstec.model.entities.ControleExecucaoFluxoEntidade;
 import br.com.businesstec.model.entities.ProdutoSku;
 import br.com.businesstec.servicejet.client.ProdutoJet;
 import br.com.businesstec.servicejet.client.ProdutoSkuJet;
-import br.com.businesstec.servicejet.client.dto.ProdutoDTO;
 import br.com.businesstec.servicejet.client.dto.ProdutoSkuDTO;
 import br.com.businesstec.servicejet.client.dto.VariationSkuDTO;
 import br.com.businesstec.servicejet.config.JetProperties;
 import br.com.businesstec.servicejet.enums.EnumIntegracaoStrategy;
 import br.com.businesstec.servicejet.mapper.ProdutoSkuMapper;
-import br.com.businesstec.servicejet.mapper.VariacaoMapper;
 import br.com.businesstec.servicejet.service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import feign.FeignException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.retry.annotation.Backoff;
@@ -22,7 +19,6 @@ import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -101,7 +97,7 @@ public class ProdutoSkuStrategy implements IntegracaoStrategy {
                     produtoSkuJet.atualizarProdutoSku(accessToken, idProdutoFila, produtoSkuDto);
                 }
                 controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
-                execucaoFluxoEntidadeEntregaService.registrarExecucao(controleExecucaoFluxoEntidade);
+//                execucaoFluxoEntidadeEntregaService.atualizarExecucao(controleExecucaoFluxoEntidade);
                 logger.info(String.format("Sku Code %s integrado com sucesso!", produtoSkuDto.getSkuCode()));
             } else {
                 logger.info(String.format("Produto com externalId %s não encontrado na fila", produtoskuSalvo.getIdentificadorOrigemProduto()));
@@ -131,7 +127,7 @@ public class ProdutoSkuStrategy implements IntegracaoStrategy {
     }
 
     private void adicionarVariacoes(ProdutoSku produtoSkuSalvo, ProdutoSkuDTO produtoSkuDTO) {
-        var variacoesProdutoSku = variacaoProdutoSkuService.getVariacaoProdutoSkuPorIdSku(Long.valueOf(produtoSkuDTO.getExternalId()));
+        var variacoesProdutoSku = variacaoProdutoSkuService.getVariacaoProdutoSkuPorIdSku(produtoSkuSalvo.getIdEntidade());
         var variationsSkuDto = variacoesProdutoSku.stream().map(x -> new VariationSkuDTO(x.getIdVariacaoItem())).collect(Collectors.toList());
         produtoSkuDTO.setVariations(variationsSkuDto);
     }

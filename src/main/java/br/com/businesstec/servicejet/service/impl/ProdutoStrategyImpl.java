@@ -71,7 +71,7 @@ public class ProdutoStrategyImpl implements IntegracaoStrategy {
             logger.info(objectMapper.writeValueAsString(produtoDto));
             logger.info("======================");
 
-            Thread.sleep(300);
+            Thread.sleep(600);
             if (verificarSeProdutoFoiIntegrado(accessToken, produtoDto)) {
                 logger.info(String.format("Produto %s já foi integrado, atualizando!", produtoDto.getName()));
                 produtoJet.atualizarProduto(accessToken, produtoDto);
@@ -82,7 +82,8 @@ public class ProdutoStrategyImpl implements IntegracaoStrategy {
                 Thread.sleep(300);
             }
             controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
-            execucaoFluxoEntidadeEntregaService.registrarExecucao(controleExecucaoFluxoEntidade);
+
+//            execucaoFluxoEntidadeEntregaService.atualizarExecucao(controleExecucaoFluxoEntidade);
             logger.info(String.format("Produto %s integrado com sucesso!", produtoDto.getName()));
         } catch (InterruptedException | JsonProcessingException e) {
             e.printStackTrace();

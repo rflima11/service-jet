@@ -12,6 +12,7 @@ public class CategoriaDTO extends EntityDTO {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String level;
     private String externalId;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty("default")
     private Boolean defaultt;
     @JsonInclude(JsonInclude.Include.NON_NULL)

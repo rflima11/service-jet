@@ -12,7 +12,7 @@ import org.springframework.retry.annotation.EnableRetry;
 @EnableFeignClients
 @SpringBootApplication
 @EnableRetry
-public class ServiceJetApplication {// extends SpringBootServletInitializer {
+public class ServiceJetApplication {//extends SpringBootServletInitializer {
 
 
 	public static void main(String[] args) {

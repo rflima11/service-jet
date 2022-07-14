@@ -41,7 +41,7 @@ public class ImagemProdutoStrategy implements IntegracaoStrategy {
         var produtoImgDTO = mapper.map(produtoImagem);
         produtoImgDTO.setImageName(produtoImgDTO.getImageName().concat(".jpg"));
         imagemProdutoJet.atualizarImagem(accessToken, produtoImgDTO);
-        controleExecucaoFluxoEntidadeEntregaService.registrarExecucao(controleExecucaoFluxoEntidade);
+//        controleExecucaoFluxoEntidadeEntregaService.atualizarExecucao(controleExecucaoFluxoEntidade);
         logger.info(String.format("IMAGEM PRODUTO EXTERNAL ID %s ATUALIZADA COM SUCESSO"));
     }
 

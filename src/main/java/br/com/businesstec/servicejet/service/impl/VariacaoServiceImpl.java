@@ -13,10 +13,7 @@ import br.com.businesstec.servicejet.service.ControleExecucaoFluxoEntidadeServic
 import br.com.businesstec.servicejet.service.TokenService;
 import br.com.businesstec.servicejet.service.VariacaoService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import feign.FeignException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.retry.annotation.Backoff;
@@ -24,7 +21,6 @@ import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -83,7 +79,7 @@ public class VariacaoServiceImpl implements VariacaoService {
 
             }
             controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
-            controleExecucaoFluxoEntidadeEntregaService.registrarExecucao(controleExecucaoFluxoEntidade);
+//            controleExecucaoFluxoEntidadeEntregaService.atualizarExecucao(controleExecucaoFluxoEntidade);
 
         } catch (JsonProcessingException e) {
             e.printStackTrace();

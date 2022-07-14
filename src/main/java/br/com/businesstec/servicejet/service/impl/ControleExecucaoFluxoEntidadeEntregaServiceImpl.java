@@ -19,15 +19,19 @@ public class ControleExecucaoFluxoEntidadeEntregaServiceImpl implements Controle
     }
 
     @Override
-    public ControleExecucaoFluxoEntidadeEntrega registrarExecucao(ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade) {
-        controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
-        return repository.save(new ControleExecucaoFluxoEntidadeEntrega(controleExecucaoFluxoEntidade.getId(), false));
+    public ControleExecucaoFluxoEntidadeEntrega atualizarExecucao(ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade) {
+        var entrega = repository.findByIdControleExecucaoFluxoEntidade(controleExecucaoFluxoEntidade.getId()).orElseThrow(() -> new RuntimeException("Não foi possível encontrar um fluxo entidade"));
+        return repository.save(entrega);
     }
+
 
     @Override
     public ControleExecucaoFluxoEntidadeEntrega registrarErro(ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade, String descricaoErro) {
         controleExecucaoFluxoEntidadeService.atualizarIntegracaoErro(controleExecucaoFluxoEntidade);
-        return repository.save(new ControleExecucaoFluxoEntidadeEntrega(controleExecucaoFluxoEntidade.getId(), true, descricaoErro));
+        var entrega = repository.findByIdControleExecucaoFluxoEntidade(controleExecucaoFluxoEntidade.getId()).orElseThrow(() -> new RuntimeException("Não foi possível encontrar um fluxo entidade"));
+        entrega.setErro(true);
+        entrega.setDescricaoErro(descricaoErro);
+        return repository.save(entrega);
     }
 
     @Override

@@ -9,10 +9,7 @@ import br.com.businesstec.servicejet.client.dto.Queue;
 import br.com.businesstec.servicejet.config.JetProperties;
 import br.com.businesstec.servicejet.mapper.MarcaMapper;
 import br.com.businesstec.servicejet.service.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import feign.Feign;
-import feign.FeignException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.retry.annotation.Backoff;
@@ -20,7 +17,6 @@ import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -98,7 +94,7 @@ public class MarcaServiceImpl implements MarcaService {
                 logger.info("ATUALIZAÇÃO MARCA " +  marca.getDescricao() + " FEITA COM SUCESSO");
             }
             controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
-            controleExecucaoFluxoEntidadeEntregaService.registrarExecucao(controleExecucaoFluxoEntidade);
+//            controleExecucaoFluxoEntidadeEntregaService.atualizarExecucao(controleExecucaoFluxoEntidade);
             logger.info(String.format("MARCA %s INTEGRADA COM SUCESSO ", marcaDto.getName()));
 
         } catch (InterruptedException e) {

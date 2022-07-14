@@ -51,7 +51,7 @@ public class EstoqueStrategyImpl  implements IntegracaoStrategy {
         var request = mapper.map(estoqueProduto);
         produtoJet.atualizarEstoqueProduto(accessToken, request);
         controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
-        controleExecucaoFluxoEntidadeEntregaService.registrarExecucao(controleExecucaoFluxoEntidade);
+//        controleExecucaoFluxoEntidadeEntregaService.atualizarExecucao(controleExecucaoFluxoEntidade);
         logger.info(String.format("ESTOQUE DO PRODUTO %s ATUALIZADO COM SUCESSO!", Objects.isNull(estoqueProduto.getIdentificadorOrigemProduto()) ? estoqueProduto.getIdentificadorOrigemSku() : estoqueProduto.getIdentificadorOrigemProduto() ));
     }
 
