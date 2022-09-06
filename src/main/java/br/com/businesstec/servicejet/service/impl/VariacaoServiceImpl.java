@@ -50,7 +50,6 @@ public class VariacaoServiceImpl implements VariacaoService {
         this.tokenService = tokenService;
         this.jetProperties = jetProperties;
         this.objectMapper = objectMapper;
-
         this.controleExecucaoFluxoEntidadeEntregaService = controleExecucaoFluxoEntidadeEntregaService;
         this.controleExecucaoFluxoEntidadeService = controleExecucaoFluxoEntidadeService;
     }
@@ -65,23 +64,24 @@ public class VariacaoServiceImpl implements VariacaoService {
 
         try {
             logger.info("INICIANDO INTEGRAÇÃO VARIAÇÃO " + variacaoDto.getName());
-
+            var objetoRequest = objectMapper.writeValueAsString(variacaoDto);
             logger.info("======= "  + " OBJETO ENVIADO: "+ " =======");
-            logger.info(objectMapper.writeValueAsString(variacaoDto));
+            logger.info(objetoRequest);
             logger.info("======================");
-
+            String response = "";
             var accessToken = tokenService.getAccessToken(jetProperties.getProduto());
             if (verificaSeVariacaoFoiCadastrada(variacaoDto, accessToken)) {
-                atualizaVariacao(variacaoDto);
+                Thread.sleep(300);
+                logger.info("VARIAÇÃO " + variacaoDto.getName() + " JÁ INTEGRADA, INICIANDO ATUALIZAÇÃO");
+                response = variacaoJet.atualizarVariacao(accessToken, variacaoDto).getBody();
             } else {
-                variacaoJet.adicionarNovaVariacao(accessToken, variacaoDto);
                 logger.info("NOVA VARIAÇÃO ADICIONADA " + variacaoDto.getName());
+                response = variacaoJet.adicionarNovaVariacao(accessToken, variacaoDto).getBody();
 
             }
             controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
-//            controleExecucaoFluxoEntidadeEntregaService.atualizarExecucao(controleExecucaoFluxoEntidade);
-
-        } catch (JsonProcessingException e) {
+            controleExecucaoFluxoEntidadeEntregaService.atualizarExecucao(controleExecucaoFluxoEntidade, response, objetoRequest);
+        } catch (JsonProcessingException | InterruptedException e) {
             e.printStackTrace();
         }
     }

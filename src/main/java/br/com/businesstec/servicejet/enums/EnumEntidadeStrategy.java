@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public enum EnumEntidadeStrategy {
 
-    PEDIDO_STRATEGY(5L),
+    PEDIDO_STRATEGY(10L),
     CLIENTES_STRATEGY(9L);
 
     private Long value;

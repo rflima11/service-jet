@@ -35,6 +35,15 @@ public class ControleExecucaoFluxoEntidadeEntregaServiceImpl implements Controle
     }
 
     @Override
+    public ControleExecucaoFluxoEntidadeEntrega atualizarExecucao(ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade, String response, String request) {
+        controleExecucaoFluxoEntidadeService.atualizarIntegracaoErro(controleExecucaoFluxoEntidade);
+        var entrega = repository.findByIdControleExecucaoFluxoEntidade(controleExecucaoFluxoEntidade.getId()).orElseThrow(() -> new RuntimeException("Não foi possível encontrar um fluxo entidade"));
+        entrega.setObjetoRequest(request);
+        entrega.setResponse(response);
+        return repository.save(entrega);
+    }
+
+    @Override
     public ControleExecucaoFluxoEntidadeEntrega encontrarPeloIdControleExecucaoFluxo(Long idControleExecucaoFluxo) {
         return repository.findByIdControleExecucaoFluxoEntidade(idControleExecucaoFluxo).orElseThrow(() -> new RuntimeException("Não encontrado ControleExecucaoFluxoEntidadeEntrega com o ID " + idControleExecucaoFluxo));
     }

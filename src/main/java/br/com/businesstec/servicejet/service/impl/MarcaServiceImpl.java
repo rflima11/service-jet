@@ -9,6 +9,7 @@ import br.com.businesstec.servicejet.client.dto.Queue;
 import br.com.businesstec.servicejet.config.JetProperties;
 import br.com.businesstec.servicejet.mapper.MarcaMapper;
 import br.com.businesstec.servicejet.service.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,22 +83,22 @@ public class MarcaServiceImpl implements MarcaService {
             var accessToken = tokenService.getAccessToken(jetProperties.getProduto());
             var marcaSalva = marcaClient.getIdentificadorMarca(accessToken, Collections.singletonList(Long.parseLong(marcaDto.getExternalId()))).getBody();
             logger.info("DETECTADO " + marcaSalva.size() + " JÁ CADASTRADA");
-
+            String response = "";
             if (marcaSalva.isEmpty()) {
-                marcaClient.inserirMarca(accessToken, marcaDto);
+                response = marcaClient.inserirMarca(accessToken, marcaDto).getBody();
             } else {
                 var marcaS = marcaSalva.get(0);
                 logger.info("INICIANDO INTEGRAÇÃO MARCA " +  marca.getDescricao());
                 marcaDto.setIdBrand(marcaS.getIdBrand());
                 Thread.sleep(300);
-                marcaClient.atualizarMarca(accessToken, marcaDto);
+                response = marcaClient.atualizarMarca(accessToken, marcaDto).getBody();
                 logger.info("ATUALIZAÇÃO MARCA " +  marca.getDescricao() + " FEITA COM SUCESSO");
             }
             controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
-//            controleExecucaoFluxoEntidadeEntregaService.atualizarExecucao(controleExecucaoFluxoEntidade);
+            controleExecucaoFluxoEntidadeEntregaService.atualizarExecucao(controleExecucaoFluxoEntidade, response, objectMapper.writeValueAsString(marcaDto));
             logger.info(String.format("MARCA %s INTEGRADA COM SUCESSO ", marcaDto.getName()));
 
-        } catch (InterruptedException e) {
+        } catch (InterruptedException | JsonProcessingException e) {
             e.printStackTrace();
         }
     }

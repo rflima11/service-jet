@@ -37,6 +37,7 @@ public class ControleExecucaoFluxoEntidadeImpl implements ControleExecucaoFluxoE
     @Override
     public ControleExecucaoFluxoEntidade atualizarIntegracao(ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade, Long idFila) {
         controleExecucaoFluxoEntidade.setIdFila(idFila);
+        controleExecucaoFluxoEntidade.setIntegrado(true);
         return controleExecucaoFluxoEntidadeRepository.save(controleExecucaoFluxoEntidade);
     }
 

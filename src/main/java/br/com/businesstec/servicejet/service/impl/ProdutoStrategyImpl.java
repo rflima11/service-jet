@@ -66,24 +66,23 @@ public class ProdutoStrategyImpl implements IntegracaoStrategy {
             var produtoSalvo = produtoService.recuperarProdutoNaoIntegradoByIdEntidade(controleExecucaoFluxoEntidade.getIdEntidade());
             var produtoDto = formatarProduto(produtoSalvo);
             var accessToken = tokenService.getAccessToken(jetProperties.getProduto());
-
+            var objeto = objectMapper.writeValueAsString(produtoDto);
             logger.info("======= "  + " OBJETO ENVIADO: "+ " =======");
             logger.info(objectMapper.writeValueAsString(produtoDto));
             logger.info("======================");
-
+            String response = "";
             Thread.sleep(600);
             if (verificarSeProdutoFoiIntegrado(accessToken, produtoDto)) {
                 logger.info(String.format("Produto %s já foi integrado, atualizando!", produtoDto.getName()));
-                produtoJet.atualizarProduto(accessToken, produtoDto);
+                response = produtoJet.atualizarProduto(accessToken, produtoDto).getBody();
                 Thread.sleep(300);
             } else {
                 logger.info(String.format("Produto %s não foi integrado, integrando novo produto!", produtoDto.getName()));
-                produtoJet.adicionarNovoProdutoJet(accessToken, produtoDto);
+                response = produtoJet.adicionarNovoProdutoJet(accessToken, produtoDto).getBody();
                 Thread.sleep(300);
             }
+            execucaoFluxoEntidadeEntregaService.atualizarExecucao(controleExecucaoFluxoEntidade, response, objeto);
             controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
-
-//            execucaoFluxoEntidadeEntregaService.atualizarExecucao(controleExecucaoFluxoEntidade);
             logger.info(String.format("Produto %s integrado com sucesso!", produtoDto.getName()));
         } catch (InterruptedException | JsonProcessingException e) {
             e.printStackTrace();
@@ -112,8 +111,9 @@ public class ProdutoStrategyImpl implements IntegracaoStrategy {
         var produtoDto = produtoMapper.map(produtoSalvo);
         var produtoEcommerce = produtoEcommerceService.findByIdProduto(produtoSalvo.getId());
         produtoDto.setPromotionStore(produtoEcommerce.getPromocaoLoja());
-        produtoDto.setCategories(categoriaProdutoService.recuperarCategorias(Long.valueOf(produtoDto.getExternalId())));
+        produtoDto.setCategories(categoriaProdutoService.recuperarCategorias(produtoSalvo.getId()));
         produtoDto.setActive(produtoEcommerce.isAtivo());
+        produtoDto.setCrossDocking(produtoEcommerce.getDiasPrazoEntrega());
         return produtoDto;
     }
 

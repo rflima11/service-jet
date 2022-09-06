@@ -8,4 +8,6 @@ import java.util.List;
 public interface PedidoService {
 
     List<Queue<PedidoDTO>> recuperarQueuePedidos();
+
+    void deletarPedidoFila(Long idQueue);
 }

@@ -66,45 +66,51 @@ public class CategoriaStrategy implements IntegracaoStrategy {
             logger.info("======= "  + " OBJETO ENVIADO: "+ " =======");
             logger.info(objectMapper.writeValueAsString(categoriaDto));
             logger.info("======================");
-
+            String response = "";
 
             if (categoriaDto.getLevel().isBlank() && levelDto.getLevel().isBlank()) {
                 Thread.sleep(300);
-                categoriaJet.adicionarNovaCategoria(accessToken, categoriaDto);
+                response = categoriaJet.adicionarNovaCategoria(accessToken, categoriaDto).getBody();
                 LogUtils.defaultInfoLog(logger, LogConstants.CATEGORIA_INTEGRADA_SUCESSO);
-            } else if (!categoriaDto.getLevel().isBlank() && !isCategoriaIntegrada(categoriaDto.getExternalId(), accessToken)){
+            } else if (!categoriaDto.getLevel().isBlank()){
                 Thread.sleep(300);
                 ajustarLevelCategoria(categoriaDto, categoriaModel, accessToken);
-                Thread.sleep(300);
-                categoriaJet.adicionarNovaCategoria(accessToken, categoriaDto);
+                if (!isCategoriaIntegrada(categoriaDto.getExternalId(), accessToken)) {
+                    response = categoriaJet.adicionarNovaCategoria(accessToken, categoriaDto).getBody();
+                    Thread.sleep(300);
+                } else {
+                    response = categoriaJet.atualizarCategoria(accessToken, categoriaDto).getBody();
+                }
                 LogUtils.defaultInfoLog(logger, LogConstants.CATEGORIA_FILHA_ITNEGRADA_SUCESSO);
 
             } else if (isCategoriaIntegrada(categoriaDto.getExternalId(), accessToken)) {
                 Thread.sleep(300);
-                categoriaJet.atualizarCategoria(accessToken, categoriaDto);
+                if (!categoriaDto.getLevel().isBlank()) {
+                    ajustarLevelCategoria(categoriaDto, categoriaModel, accessToken);
+                }
+                response = categoriaJet.atualizarCategoria(accessToken, categoriaDto).getBody();
                 LogUtils.defaultInfoLog(logger, LogConstants.CATEGORIA_ATUALIZADA_SUCESSO);
 
             }
+            var request = objectMapper.writeValueAsString(categoriaDto);
+            controleExecucaoFluxoEntidadeEntregaService.atualizarExecucao(controleExecucaoFluxoEntidade, response, request);
             controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
 //            controleExecucaoFluxoEntidadeEntregaService.atualizarExecucao(controleExecucaoFluxoEntidade);
         } catch (InterruptedException | JsonProcessingException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
 
     }
 
-
-    public boolean isCategoriaIntegrada(String externalId, String accessToken) {
+    private boolean isCategoriaIntegrada(String externalId, String accessToken) {
         var categoriaExists = false;
         try {
             Thread.sleep(300);
             var filaCategoria = categoriaJet.getCategorias(accessToken).getBody();
-
             var optCategoria = filaCategoria.stream().filter(entity -> {
                 var externalIdQueue = entity.getEntity().getExternalId();
                 return Objects.equals(externalIdQueue, externalId);
             }).findFirst();
-
             categoriaExists = optCategoria.isPresent();
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -131,7 +137,6 @@ public class CategoriaStrategy implements IntegracaoStrategy {
         controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
         controleExecucaoFluxoEntidadeEntregaService.registrarErro(controleExecucaoFluxoEntidade, e.getMessage());
     }
-
 
 
     @Override

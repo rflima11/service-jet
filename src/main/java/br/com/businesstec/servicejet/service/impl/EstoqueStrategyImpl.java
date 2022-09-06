@@ -6,6 +6,8 @@ import br.com.businesstec.servicejet.config.JetProperties;
 import br.com.businesstec.servicejet.enums.EnumIntegracaoStrategy;
 import br.com.businesstec.servicejet.mapper.EstoqueMapper;
 import br.com.businesstec.servicejet.service.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.retry.annotation.Backoff;
@@ -28,14 +30,17 @@ public class EstoqueStrategyImpl  implements IntegracaoStrategy {
     private final ControleExecucaoFluxoEntidadeEntregaService controleExecucaoFluxoEntidadeEntregaService;
     private final ControleExecucaoFluxoEntidadeService controleExecucaoFluxoEntidadeService;
 
+    private final ObjectMapper objectMapper;
 
-    public EstoqueStrategyImpl(ProdutoJet produtoJet, JetProperties jetProperties, TokenService tokenService, EstoqueProdutoService estoqueProdutoService, ControleExecucaoFluxoEntidadeEntregaService controleExecucaoFluxoEntidadeEntregaService, ControleExecucaoFluxoEntidadeService controleExecucaoFluxoEntidadeService) {
+
+    public EstoqueStrategyImpl(ProdutoJet produtoJet, JetProperties jetProperties, TokenService tokenService, EstoqueProdutoService estoqueProdutoService, ControleExecucaoFluxoEntidadeEntregaService controleExecucaoFluxoEntidadeEntregaService, ControleExecucaoFluxoEntidadeService controleExecucaoFluxoEntidadeService, ObjectMapper objectMapper) {
         this.produtoJet = produtoJet;
         this.jetProperties = jetProperties;
         this.tokenService = tokenService;
         this.estoqueProdutoService = estoqueProdutoService;
         this.controleExecucaoFluxoEntidadeEntregaService = controleExecucaoFluxoEntidadeEntregaService;
         this.controleExecucaoFluxoEntidadeService = controleExecucaoFluxoEntidadeService;
+        this.objectMapper = objectMapper;
         mapper = EstoqueMapper.INSTANCE;
     }
 
@@ -46,13 +51,18 @@ public class EstoqueStrategyImpl  implements IntegracaoStrategy {
             backoff = @Backoff(delayExpression = "${config.retry.maxDelay}")
     )
     public void executar(ControleExecucaoFluxoEntidade controleExecucaoFluxoEntidade) {
-        var estoqueProduto = estoqueProdutoService.recuperarPeloIdEntidade(controleExecucaoFluxoEntidade.getIdEntidade());
-        var accessToken = tokenService.getAccessToken(jetProperties.getProduto());
-        var request = mapper.map(estoqueProduto);
-        produtoJet.atualizarEstoqueProduto(accessToken, request);
-        controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
-//        controleExecucaoFluxoEntidadeEntregaService.atualizarExecucao(controleExecucaoFluxoEntidade);
-        logger.info(String.format("ESTOQUE DO PRODUTO %s ATUALIZADO COM SUCESSO!", Objects.isNull(estoqueProduto.getIdentificadorOrigemProduto()) ? estoqueProduto.getIdentificadorOrigemSku() : estoqueProduto.getIdentificadorOrigemProduto() ));
+
+        try {
+            var estoqueProduto = estoqueProdutoService.recuperarPeloIdEntidade(controleExecucaoFluxoEntidade.getIdEntidade());
+            var accessToken = tokenService.getAccessToken(jetProperties.getProduto());
+            var request = mapper.map(estoqueProduto);
+            var response = produtoJet.atualizarEstoqueProduto(accessToken, request).getBody();
+            controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
+            controleExecucaoFluxoEntidadeEntregaService.atualizarExecucao(controleExecucaoFluxoEntidade, response, objectMapper.writeValueAsString(request));
+            logger.info(String.format("ESTOQUE DO PRODUTO %s ATUALIZADO COM SUCESSO!", Objects.isNull(estoqueProduto.getIdentificadorOrigemProduto()) ? estoqueProduto.getIdentificadorOrigemSku() : estoqueProduto.getIdentificadorOrigemProduto() ));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Recover

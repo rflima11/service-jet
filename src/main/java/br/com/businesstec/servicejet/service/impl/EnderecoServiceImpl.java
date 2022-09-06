@@ -21,7 +21,6 @@ public class EnderecoServiceImpl implements EnderecoService  {
 
     @Override
     public Endereco salvarEndereco(AddressDTO enderecoDto, Cliente cliente) {
-
         var endereco = enderecoMapper.map(enderecoDto);
         endereco.setIdCliente(cliente.getId());
         return enderecoRepository.save(endereco);

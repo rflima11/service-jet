@@ -19,7 +19,7 @@ import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -79,25 +79,25 @@ public class ProdutoSkuStrategy implements IntegracaoStrategy {
             var produtoSkuDto = formatarProdutoSku(produtoskuSalvo);
             Thread.sleep(300);
             var idProduct = produtoService.recuperarIdProductByExternalId(produtoskuSalvo.getIdentificadorOrigemProduto(), accessToken, controleExecucaoFluxoEntidade);
-
+            var requestObject = objectMapper.writeValueAsString(produtoSkuDto);
             logger.info("======= "  + " OBJETO ENVIADO: "+ " =======");
-            logger.info(objectMapper.writeValueAsString(produtoSkuDto));
+            logger.info(requestObject);
             logger.info("======================");
-
+            String response = "";
             if (idProduct.isPresent()) {
                 adicionarVariacoes(produtoskuSalvo, produtoSkuDto);
                 var idProdutoFila = idProduct.get();
                 if (!verificarSeProdutoSkuFoiIntegrado(produtoSkuDto)) {
                     logger.info(String.format("Novo Sku Code %s realizando inserção", produtoSkuDto.getSkuCode()));
                     Thread.sleep(300);
-                    produtoSkuJet.adicionarNovoProdutoSku(accessToken, idProdutoFila, produtoSkuDto);
+                    response = produtoSkuJet.adicionarNovoProdutoSku(accessToken, idProdutoFila, produtoSkuDto).getBody();
                 } else {
                     logger.info(String.format("Sku Code %s já foi integrado, atualizando!", produtoSkuDto.getSkuCode()));
                     Thread.sleep(300);
-                    produtoSkuJet.atualizarProdutoSku(accessToken, idProdutoFila, produtoSkuDto);
+                    response = produtoSkuJet.atualizarProdutoSku(accessToken, idProdutoFila, produtoSkuDto).getBody();
                 }
                 controleExecucaoFluxoEntidadeService.atualizarIntegracao(controleExecucaoFluxoEntidade);
-//                execucaoFluxoEntidadeEntregaService.atualizarExecucao(controleExecucaoFluxoEntidade);
+                execucaoFluxoEntidadeEntregaService.atualizarExecucao(controleExecucaoFluxoEntidade, response, requestObject);
                 logger.info(String.format("Sku Code %s integrado com sucesso!", produtoSkuDto.getSkuCode()));
             } else {
                 logger.info(String.format("Produto com externalId %s não encontrado na fila", produtoskuSalvo.getIdentificadorOrigemProduto()));

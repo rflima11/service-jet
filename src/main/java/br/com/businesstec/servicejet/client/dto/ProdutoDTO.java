@@ -24,6 +24,7 @@ public class ProdutoDTO extends EntityDTO {
     private Long stock;
     private BigDecimal price;
     private String externalId;
+    private Integer crossDocking;
     private Boolean active;
     private List<CategoriaDTO> categories;
     private PesoDTO cubing;
@@ -169,6 +170,14 @@ public class ProdutoDTO extends EntityDTO {
 
     public void setDescriptionDetailSummary(String descriptionDetailSummary) {
         this.descriptionDetailSummary = descriptionDetailSummary;
+    }
+
+    public Integer getCrossDocking() {
+        return crossDocking;
+    }
+
+    public void setCrossDocking(Integer crossDocking) {
+        this.crossDocking = crossDocking;
     }
 }
 

@@ -1,6 +1,7 @@
 package br.com.businesstec.servicejet.client.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -57,7 +58,8 @@ public class PedidoDTO extends EntityDTO {
     private double valueOfInstallment;
     private List<OrderItemDTO> orderItems;
     private String nameCustomer;
-    private String cpf_cnpj;
+    @JsonProperty("cpf_cnpj")
+    private String cpfCnpj;
     private String rg_ie;
     private String nameShipping;
     private String deliveryShipping;
@@ -478,12 +480,12 @@ public class PedidoDTO extends EntityDTO {
         this.nameCustomer = nameCustomer;
     }
 
-    public String getCpf_cnpj() {
-        return cpf_cnpj;
+    public String getCpfCnpj() {
+        return cpfCnpj;
     }
 
-    public void setCpf_cnpj(String cpf_cnpj) {
-        this.cpf_cnpj = cpf_cnpj;
+    public void setCpfCnpj(String cpfCnpj) {
+        this.cpfCnpj = cpfCnpj;
     }
 
     public String getRg_ie() {

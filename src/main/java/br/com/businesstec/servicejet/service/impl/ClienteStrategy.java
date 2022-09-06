@@ -54,7 +54,9 @@ public class ClienteStrategy implements EntidadeStrategy {
                             enderecoService.salvarEndereco(e, clienteSalvo);
                         });
                     }
-                    controleExecucaoFluxoEntidadeService.registrar(controleExecucaoFluxo.getId(), clienteSalvo.getIdEntidade(), f.getIdQueue());
+                    var idQueue = f.getIdQueue();
+                    controleExecucaoFluxoEntidadeService.registrar(controleExecucaoFluxo.getId(), clienteSalvo.getIdEntidade(), idQueue);
+                    clienteService.excluirFila(idQueue);
                     logger.info(String.format("CLIENTE %s SALVO EM BANCO DE DADOS", clienteSalvo.getNome()));
                 });
             }

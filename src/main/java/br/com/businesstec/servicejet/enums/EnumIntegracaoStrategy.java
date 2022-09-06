@@ -12,6 +12,8 @@ public enum EnumIntegracaoStrategy {
     PRODUTO_IMAGEM(8L),
     PRODUTO_ESTOQUE(7L),
     PRODUTO_PRECO(6L),
+    PEDIDO_STRATEGY(10L),
+    STATUS_PEDIDO(11L),
     CLIENTES_STRATEGY(9L);
 
     private Long value;
